@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
             ;    // pass it to shedular
             i++; // go to next process
         }
-}
-// 7. Clear clock resources
-destroyClk(true);
+    }
+    // 7. Clear clock resources
+    destroyClk(true);
 }
 
 void clearResources(int signum)
