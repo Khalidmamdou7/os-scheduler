@@ -1,4 +1,6 @@
 // build files
+.vscode
 *.out
 processes.txt
 *.gch
+*.o
