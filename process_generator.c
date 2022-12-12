@@ -1,6 +1,7 @@
 #include "headers.h"
 #include "ProcessData.h"
 #include "Queue.c"
+#include "enums.h"
 
 void clearResources(int);
 
@@ -35,6 +36,17 @@ int main(int argc, char *argv[])
     fclose(inpFilePtr);
 
     // 2. Read the chosen scheduling algorithm and its parameters, if there are any from the argument list.
+    if (argc < 4)
+    {
+        printf("Error: Scheduling algorithm is not specified\n");
+        printf("Run the program as: ./process_generator <input_file_path> -sch <scheduling_algorithm_number> <scheduling_algorithm_parameters>\n");
+        exit(1);
+    }
+    enum SchedulingAlgorithm schAlg = atoi(argv[3]);
+    // print the chosen scheduling algorithm string
+    printf("Scheduling algorithm is %d\n", schAlg);
+
+
     // 3. Initiate and create the scheduler and clock processes.
     // 4. Use this function after creating the clock process to initialize clock.
     initClk();
