@@ -1,4 +1,4 @@
-#include "../ProcessData.h"
+#include "../ProcessStructs/ProcessData.h"
 
 #ifndef MSGSTRUCT_H
 #define MSGSTRUCT_H
