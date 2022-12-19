@@ -1,7 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include "ProcessData.h"
+#include "../ProcessData.h"
 
 struct QueueNode
 {
