@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     }
 
 
-    sleep(1);
+    sleep(30);
     destroyMsgQueue(msgid);
     // 7. Clear clock resources
     destroyClk(true);
