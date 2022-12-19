@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     // 6. Send the information to the scheduler at the appropriate time.
     
     // Create a unique key via call to ftok() which takes a file path and an integer identifier as its arguments.
-    key_t msgKey = ftok("keyfile", 65);
+    key_t msgKey = ftok("./ipc/keyfile", 65);
     int msgid = getMsgQueue(msgKey);
     struct MsgStruct msg = {
         .mtype = 1,
