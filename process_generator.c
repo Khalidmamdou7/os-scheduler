@@ -1,60 +1,112 @@
 #include "headers.h"
+#include "./DataStructures/Queue.h"
+#include "enums.h"
+#include "./ipc/MsgStruct.h"
+#include "./ipc/MsgQueue.h"
 
 void clearResources(int);
-//---------//
-struct processData
-{
-    int id;
-    int arrivaltime;
-    int runningtime;
-    int priority;
-};
-//--------//
+
 int main(int argc, char *argv[])
 {
-    signal(SIGINT, clearResources);
+    // signal(SIGINT, clearResources);
     // TODO Initialization
-    
+
     // 1. Read the input files.
-    char* input_file=argv[1];
-    struct processData pData[4];  //read processes in array index 0 arrived first
-    int i = 0;
-    FILE *Input_File = fopen(input_file, "r");
+    char* filePath = argv[1];
+    FILE* inpFilePtr = fopen(filePath, "r");
 
-    while (!feof(Input_File))
+    if (inpFilePtr == NULL)
     {
-        fscanf(Input_File, "%d %d %d %d", &pData[i].id,&pData[i].arrivaltime,&pData[i].runningtime,&pData[i].priority);
-        i++;
+        printf("Error opening file");
+        exit(1);
     }
-   
-// 2. Read the chosen scheduling algorithm and its parameters, if there are any from the argument list.
-   char* sch_algorithm=argv[3]; //till we add other parameters 
 
-// 3. Initiate and create the scheduler and clock processes.
+    struct Queue* q = createQueue();
 
-// 4. Use this function after creating the clock process to initialize clock.
-initClk();
-// To get time use this function.
-int time = getClk();
-printf("Current Time is %d\n", time);
-// TODO Generation Main Loop
-// 5. Create a data structure for processes and provide it with its parameters.
-//data struct created when we read the input file
-// 6. Send the information to the scheduler at the appropriate time.
-i = 0;
-while (true)
-{
-    if(pData[i].arrivaltime == time)
+    char buff[120];
+    while (fgets(buff, 120, inpFilePtr))//problem in reading process 5
     {
-        ;//pass it to shedular
-        i++; //go to next process
+        if(buff[0]=='#')//skip comment
+            continue;
+        
+        struct ProcessData p;
+        sscanf(buff, "%d %d %d %d", &p.id, &p.arrivalTime, &p.runningTime, &p.priority);
+        enqueue(q, p);
     }
-}
-// 7. Clear clock resources
-destroyClk(true);
+    printQueue(q);
+    fclose(inpFilePtr);
+
+    // 2. Read the chosen scheduling algorithm and its parameters, if there are any from the argument list.
+    if (argc < 4)
+    {
+        printf("Error: Scheduling algorithm is not specified\n");
+        printf("Run the program as: ./process_generator <input_file_path> -sch <scheduling_algorithm_number> <scheduling_algorithm_parameters>\n");
+        exit(1);
+    }
+    enum SchedulingAlgorithm schAlg = atoi(argv[3]);
+    // print the chosen scheduling algorithm string
+    printf("Scheduling algorithm is %d\n", schAlg);
+
+
+    // 3. Initiate and create the scheduler and clock processes.
+    int pid = fork();
+    if (pid == 0)
+    {
+        printf("Process generator running the clk\n");
+        char* args[] = { "./build/clk.out", NULL };
+        execv(args[0], args);
+    } else {
+        pid = fork();
+        if (pid == 0)
+        {
+            // pass the scheduling algorithm number and its parameters to the scheduler
+            char* args[] = { "./build/scheduler.out", "-sch", argv[3], NULL };
+            execv(args[0], args);
+        }
+    }
+
+    // 4. Use this function after creating the clock process to initialize clock.
+    initClk();
+    // To get time use this function.
+    int time = getClk();
+    printf("Current Time is %d\n", time);
+    printf("Hello from process generator\n");
+    // sleep(1);
+    // TODO Generation Main Loop
+    // 5. Create a data structure for processes and provide it with its parameters.
+    // 6. Send the information to the scheduler at the appropriate time.
+    
+    // Create a unique key via call to ftok() which takes a file path and an integer identifier as its arguments.
+    key_t msgKey = ftok("keyfile", 65);
+    int msgid = getMsgQueue(msgKey);
+    struct MsgStruct msg = {
+        .mtype = 1,
+        .data = peak(q)->pData
+    };
+    while (!isEmpty(q))
+    {
+        if (msg.data.arrivalTime == getClk())
+        {
+            dequeue(q);
+            printf("Sending message to scheduler: %d %d %d %d -- at time: %d\n",
+                msg.data.id, msg.data.arrivalTime, msg.data.runningTime, msg.data.priority, getClk());
+            sendMsg(msgid, msg);
+            msg.data = peak(q) ? peak(q)->pData : msg.data;
+            if (isEmpty(q))
+                break;
+        }
+    }
+
+
+    sleep(1);
+    destroyMsgQueue(msgid);
+    // 7. Clear clock resources
+    destroyClk(true);
 }
 
 void clearResources(int signum)
 {
     //TODO Clears all resources in case of interruption
+    destroyMsgQueue(ftok("keyfile", 65));
+    destroyClk(true);
 }
