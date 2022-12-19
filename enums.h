@@ -1,3 +1,5 @@
+#pragma once
+
 enum SchedulingAlgorithm {
     SJF = 1, // Shortest Job First
     HPF = 2, // Preemptive Highest Priority First

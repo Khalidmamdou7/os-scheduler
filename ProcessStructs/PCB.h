@@ -7,7 +7,7 @@
 struct PCB
 {
     int pid;
-    struct ProcessData* processData;
+    struct ProcessData processData;
     enum State state;
     int startTime;
     int finishTime;
@@ -17,5 +17,7 @@ struct PCB
     int weightedTurnaroundTime;
     
 };
+
+struct PCB initializePCB(struct ProcessData processData);
 
 #endif
