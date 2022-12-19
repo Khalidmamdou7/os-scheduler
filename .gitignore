@@ -1,6 +1,8 @@
 // build files
 .vscode
+build
 *.out
 processes.txt
 *.gch
 *.o
+.fuse_hidden*   // hidden files created by the fuse filesystem  (https://askubuntu.com/a/493206)
