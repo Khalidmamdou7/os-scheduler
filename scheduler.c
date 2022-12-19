@@ -1,5 +1,7 @@
 #include "headers.h"
 #include "enums.h"
+#include "./ipc/MsgStruct.h"
+#include "./ipc/MsgQueue.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,6 +16,17 @@ int main(int argc, char *argv[])
     enum SchedulingAlgorithm schAlg = atoi(argv[2]);
 
     printf("Scheduler started with %d scheduling algorithm\n", schAlg);
+
+    key_t msgKey = ftok("keyfile", 65);
+    int msgQueueId = getMsgQueue(msgKey);
+
+    while (1)
+    {
+        struct MsgStruct msg = receiveMsg(msgQueueId, 1);
+        printf("Received message from process generator: %d %d %d %d\n", msg.data.id, msg.data.arrivalTime, msg.data.runningTime, msg.data.priority);        
+    }
+    
+
 
     //TODO: implement the scheduler.
     //TODO: upon termination release the clock resources.

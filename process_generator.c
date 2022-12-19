@@ -1,7 +1,8 @@
 #include "headers.h"
-#include "ProcessData.h"
-#include "Queue.c"
+#include "./DataStructures/Queue.h"
 #include "enums.h"
+#include "./ipc/MsgStruct.h"
+#include "./ipc/MsgQueue.h"
 
 void clearResources(int);
 
@@ -51,14 +52,15 @@ int main(int argc, char *argv[])
     int pid = fork();
     if (pid == 0)
     {
-        char* args[] = { "./clk.out", NULL };
+        printf("Process generator running the clk\n");
+        char* args[] = { "./build/clk.out", NULL };
         execv(args[0], args);
     } else {
         pid = fork();
         if (pid == 0)
         {
             // pass the scheduling algorithm number and its parameters to the scheduler
-            char* args[] = { "./scheduler.out", "-sch", argv[3], NULL };
+            char* args[] = { "./build/scheduler.out", "-sch", argv[3], NULL };
             execv(args[0], args);
         }
     }
@@ -68,10 +70,36 @@ int main(int argc, char *argv[])
     // To get time use this function.
     int time = getClk();
     printf("Current Time is %d\n", time);
-    sleep(1);
+    printf("Hello from process generator\n");
+    // sleep(1);
     // TODO Generation Main Loop
     // 5. Create a data structure for processes and provide it with its parameters.
     // 6. Send the information to the scheduler at the appropriate time.
+    
+    // Create a unique key via call to ftok() which takes a file path and an integer identifier as its arguments.
+    key_t msgKey = ftok("keyfile", 65);
+    int msgid = getMsgQueue(msgKey);
+    struct MsgStruct msg = {
+        .mtype = 1,
+        .data = peak(q)->pData
+    };
+    while (!isEmpty(q))
+    {
+        if (msg.data.arrivalTime == getClk())
+        {
+            dequeue(q);
+            printf("Sending message to scheduler: %d %d %d %d -- at time: %d\n",
+                msg.data.id, msg.data.arrivalTime, msg.data.runningTime, msg.data.priority, getClk());
+            sendMsg(msgid, msg);
+            msg.data = peak(q) ? peak(q)->pData : msg.data;
+            if (isEmpty(q))
+                break;
+        }
+    }
+
+
+    sleep(1);
+    destroyMsgQueue(msgid);
     // 7. Clear clock resources
     destroyClk(true);
 }
@@ -79,4 +107,6 @@ int main(int argc, char *argv[])
 void clearResources(int signum)
 {
     //TODO Clears all resources in case of interruption
+    destroyMsgQueue(ftok("keyfile", 65));
+    destroyClk(true);
 }
