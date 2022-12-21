@@ -4,13 +4,17 @@
 #include "./ipc/MsgStruct.h"
 #include "./ipc/MsgQueue.h"
 
+bool isSimulationFinished = false;
+
 void clearResources(int);
+void finishSimulation(int);
 
 void readProcessFileAndEnqueue(char* filePath, struct Queue* q);
 
 int main(int argc, char *argv[])
 {
     // signal(SIGINT, clearResources);
+    signal(SIGCHLD, finishSimulation);
     // TODO Initialization
 
     // 1. Read the input files.
@@ -72,16 +76,20 @@ int main(int argc, char *argv[])
             printf("Sending message to scheduler: %d %d %d %d -- at time: %d\n",
                 msg.data.id, msg.data.arrivalTime, msg.data.runningTime, msg.data.priority, getClk());
             sendMsg(msgid, msg);
+            // send a signal to the scheduler to wake it up
+            kill(pid, SIGUSR1);
             msg.data = peak(q) ? peak(q)->pData : msg.data;
             if (isEmpty(q))
                 break;
         }
     }
 
-
-    sleep(30);
+    while (1) {
+        sleep(100);
+        if (isSimulationFinished)
+            break;
+    }
     destroyMsgQueue(msgid);
-    // 7. Clear clock resources
     destroyClk(true);
 }
 
@@ -90,6 +98,11 @@ void clearResources(int signum)
     //TODO Clears all resources in case of interruption
     destroyMsgQueue(ftok("keyfile", 65));
     destroyClk(true);
+}
+
+void finishSimulation(int signum)
+{
+    isSimulationFinished = true;
 }
 
 
