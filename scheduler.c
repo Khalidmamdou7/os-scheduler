@@ -52,9 +52,19 @@ int main(int argc, char *argv[])
 
     readyQueue = createQueue();
 
-    // TODO: Run the first process
-    runProcess(peak(readyQueue)->pData.runningTime);
-
+    // initial condition by running the first process
+    while (1)
+    {
+        if (isEmpty(readyQueue)) {
+            printf("Scheduler is waiting for processes to arrive...\n");
+        }
+        else
+        {
+            printf("Scheduler is running the first process %d\n", peak(readyQueue)->pData.id);
+            runProcess(peak(readyQueue)->pData.runningTime);
+            break;
+        }
+    }
     while (!isFinishedGenerating || isEmpty(readyQueue)) // TODO: Add a condition to check whether there are still processes to run
     {
         sleep(1);
@@ -102,13 +112,14 @@ void recieveProcess()
 
 int runProcess(int runningTime)
 {
+    printf("Running a process with remaining time %d\n", runningTime);
     int pid = fork();
     if (pid == 0)
     {
         // Child process
         char remainingTimeStr[10];
         sprintf(remainingTimeStr, "%d", runningTime);
-        char* args[] = {"./process.out", remainingTimeStr, NULL};
+        char* args[] = {"./build/process.out", remainingTimeStr, NULL};
         execvp(args[0], args);
     }
     return pid;
@@ -139,7 +150,14 @@ void processStopped(int signum)
 
 
     // TODO: Run the next process in the ready queue
-    pid = runProcess(pcbArray[i].processData.runningTime);
+    pid = runProcess(peak(readyQueue)->pData.runningTime);
+    for (i = 0; i < pcbArraySize; i++)
+    {
+        if (pcbArray[i].pid == peak(readyQueue)->pData.id)
+        {
+            break;
+        }
+    }
     pcbArray[i].actualPid = pid;
     pcbArray[i].state = RUNNING;
 
