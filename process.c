@@ -1,10 +1,15 @@
 #include "headers.h"
 
+void stopHandler(int);
+
 /* Modify this file as needed*/
 int remainingtime;
 
 int main(int agrc, char *argv[])
 {
+    // Attach signal handler to handle a process stop (A preemption from the scheduler)
+    signal(SIGSTOP, stopHandler);
+
     initClk();
     int timer = getClk();
 
@@ -25,5 +30,11 @@ int main(int agrc, char *argv[])
 
     printf("Process %d finished at time %d\n", getpid(), getClk());
 
-    return 0;
+    return remainingtime;
+}
+
+void stopHandler(int signum)
+{
+    printf("A process has been stopped at time %d and it has remaining time %d\n", getClk(), remainingtime);
+    exit(remainingtime);
 }
