@@ -73,8 +73,8 @@ int main(int argc, char *argv[])
         if (msg.data.arrivalTime == getClk())
         {
             dequeue(q);
-            printf("Sending message to scheduler: %d %d %d %d -- at time: %d\n",
-                msg.data.id, msg.data.arrivalTime, msg.data.runningTime, msg.data.priority, getClk());
+            printf("Sending message to scheduler using msg queue with id %d: %d %d %d %d -- at time: %d\n",
+                msgid, msg.data.id, msg.data.arrivalTime, msg.data.runningTime, msg.data.priority, getClk());
             sendMsg(msgid, msg);
             // send a signal to the scheduler to wake it up
             kill(pid, SIGUSR1);
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 void clearResources(int signum)
 {
     //TODO Clears all resources in case of interruption
-    destroyMsgQueue(ftok("keyfile", 65));
+    destroyMsgQueue(ftok("./ipc/keyfile", 65));
     destroyClk(true);
 }
 
