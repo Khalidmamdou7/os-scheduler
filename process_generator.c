@@ -84,6 +84,8 @@ int main(int argc, char *argv[])
         }
     }
 
+    // sending a signal to the scheduler to tell it that there are no more processes to be sent
+    kill(pid, SIGUSR2);
     while (1) {
         sleep(100);
         if (isSimulationFinished)
