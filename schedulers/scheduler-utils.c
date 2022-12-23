@@ -25,6 +25,10 @@ void attachSignalHandlers()
 
 void processRecieved(int signum) {
     recieveProcess();
+    
+    // TODO: Use the priority ready queue instead of normal queue (and with pcb)
+    enqueue(readyQueue, pcbArray[pcbArraySize++].processData); 
+
 }
 
 void recieveProcess()
@@ -41,9 +45,6 @@ void recieveProcess()
     }
 
     pcbArray[pcbArraySize] = initializePCB(msg.data);
-
-    // TODO: Use the priority ready queue instead of normal queue (and with pcb)
-    enqueue(readyQueue, pcbArray[pcbArraySize++].processData); 
 
 }
 
