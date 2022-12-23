@@ -38,135 +38,47 @@ int main(int argc, char *argv[])
     }
     enum SchedulingAlgorithm schAlg = atoi(argv[2]);
 
-    key_t msgKey = ftok("./ipc/keyfile", 65);
-    msgQueueId = getMsgQueue(msgKey);
-    printf("Scheduler started with %d scheduling algorithm\n", schAlg);
-
-
-
-    // Attach signal handler to handle a process stop
-    signal(SIGCHLD, processStopped);
-    // Attach signal handler to recieve processes from process generator
-    signal(SIGUSR1, processRecieved);
-    signal(SIGUSR2, finishedGeneratingProcess);
-
-    readyQueue = createQueue();
-
-    // initial condition by running the first process
-    while (1)
+    switch (schAlg)
     {
-        if (isEmpty(readyQueue)) {
-            printf("Scheduler is waiting for processes to arrive...\n");
-        }
-        else
+        case SJF:
         {
-            printf("Scheduler is running the first process %d\n", peak(readyQueue)->pData.id);
-            runProcess(peak(readyQueue)->pData.runningTime);
-            break;
+            printf("Scheduler started with SJF scheduling algorithm\n");
+            char* args[] = { "./build/scheduler-sjf.out", NULL };
+            execv(args[0], args);
         }
-    }
-    while (!isFinishedGenerating || isEmpty(readyQueue)) // TODO: Add a condition to check whether there are still processes to run
-    {
-        sleep(1);
-    }
-
-    
-
-
-    // TODO:
-    // 1.Report the following information:
-    // a) CPU utilization.
-    // b) Average Weighted Turnaround Time
-    // c) Average Waiting Time
-    // 2.Generate two files: (check the input/output section
-    // below)(a)Scheduler.log
-    // (b) Scheduler.perf
-
-
-    printf("Scheduler terminated\n");
-}
-
-void processRecieved(int signum) {
-    recieveProcess();
-}
-
-void recieveProcess()
-{
-    printf("Recieving a process from process generator using msg queue with id %d\n", msgQueueId);
-
-    struct MsgStruct msg = receiveMsg(msgQueueId, 1);
-    printf("Received message from process generator: %d %d %d %d\n", msg.data.id, msg.data.arrivalTime, msg.data.runningTime, msg.data.priority);    
-
-    if (pcbArraySize == MAX_PROCESSES)
-    {
-        printf("Error: Reached maximum number of processes\n");
-        return;
-    }
-
-    pcbArray[pcbArraySize] = initializePCB(msg.data);
-
-    // TODO: Use the priority ready queue instead of normal queue (and with pcb)
-    enqueue(readyQueue, pcbArray[pcbArraySize++].processData); 
-
-}
-
-int runProcess(int runningTime)
-{
-    printf("Running a process with remaining time %d\n", runningTime);
-    int pid = fork();
-    if (pid == 0)
-    {
-        // Child process
-        char remainingTimeStr[10];
-        sprintf(remainingTimeStr, "%d", runningTime);
-        char* args[] = {"./build/process.out", remainingTimeStr, NULL};
-        execvp(args[0], args);
-    }
-    return pid;
-
-}
-
-void processStopped(int signum)
-{
-    printf("A process has stopped\n");
-    // TODO: Get the finished process id and its remaining time
-    int remainingTime, pid;
-    pid = wait(&remainingTime);
-    // TODO: Find the process in the pcb array
-    int i;
-    for (i = 0; i < pcbArraySize; i++)
-    {
-        if (pcbArray[i].actualPid == pid)
+        case HPF:
         {
-            break;
+            printf("Scheduler started with HPF scheduling algorithm\n");
+            char* args[] = { "./build/scheduler-hpf.out", NULL };
+            execv(args[0], args);
         }
-    }
-    // TODO: Remove the process from the ready queue and insert it again if it has remaining time (preemptive)
-    dequeue(readyQueue);
-    // TODO: Update the process state
-    // TODO: Update the process statistics
-    // TODO: Log the process termination and statistics
-    // TODO: Delete the process from the pcb array if it has no remaining time
-
-
-    // TODO: Run the next process in the ready queue
-    pid = runProcess(peak(readyQueue)->pData.runningTime);
-    for (i = 0; i < pcbArraySize; i++)
-    {
-        if (pcbArray[i].pid == peak(readyQueue)->pData.id)
+        case RR:
         {
-            break;
+            if (argc < 5)
+            {
+                printf("Error: Quantum time is not specified\n");
+                printf("Run the program as: ./scheduler.out -sch <scheduling_algorithm_number> -q <quantum>\n");
+                exit(1);
+            }
+            printf("Scheduler started with RR scheduling algorithm\n");
+            char* args[] = { "./build/scheduler-rr.out", argv[4], NULL };
+            execv(args[0], args);
         }
+        case MLF:
+        {
+            if (argc < 5)
+            {
+                printf("Error: Quantum time is not specified\n");
+                printf("Run the program as: ./scheduler.out -sch <scheduling_algorithm_number> -q <quantum>\n");
+                exit(1);
+            }
+            printf("Scheduler started with MLF scheduling algorithm\n");
+            char* args[] = { "./build/scheduler-mlf.out", argv[4], NULL };
+            execv(args[0], args);
+        }
+        default:
+            printf("Error: Scheduling algorithm value is not valid\n");
+            break;
     }
-    pcbArray[i].actualPid = pid;
-    pcbArray[i].state = RUNNING;
 
-
-
-
-}
-
-void finishedGeneratingProcess(int signum)
-{
-    isFinishedGenerating = true;
 }
