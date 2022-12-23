@@ -45,8 +45,14 @@ int main(int argc, char *argv[])
         if (pid == 0)
         {
             // pass the scheduling algorithm number and its parameters to the scheduler
-            char* args[] = { "./build/scheduler.out", "-sch", argv[3], NULL };
-            execv(args[0], args);
+            if (argc > 4)
+            {
+                char* args[] = { "./build/scheduler.out", argv[2], argv[3], argv[4], argv[5], NULL };
+                execv(args[0], args);
+            } else {
+                char* args[] = { "./build/scheduler.out", argv[2], argv[3], NULL };
+                execv(args[0], args);
+            }
         }
     }
 
@@ -87,10 +93,11 @@ int main(int argc, char *argv[])
     // sending a signal to the scheduler to tell it that there are no more processes to be sent
     kill(pid, SIGUSR2);
     while (1) {
-        sleep(100);
         if (isSimulationFinished)
             break;
+        sleep(100);
     }
+    printf("Process generator terminating normally...\n");
     destroyMsgQueue(msgid);
     destroyClk(true);
 }
@@ -98,6 +105,7 @@ int main(int argc, char *argv[])
 void clearResources(int signum)
 {
     //TODO Clears all resources in case of interruption
+    printf("Process generator terminating by interruption...\n");
     destroyMsgQueue(ftok("./ipc/keyfile", 65));
     destroyClk(true);
 }
