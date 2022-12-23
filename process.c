@@ -11,19 +11,21 @@ int main(int agrc, char *argv[])
     signal(SIGSTOP, stopHandler);
 
     initClk();
-    int timer = getClk();
+    int startTime = getClk();
+    int timer = startTime;
+
 
     //TODO The process needs to get the remaining time from somewhere
     remainingtime = atoi(argv[1]);
     //remainingtime = ??;
-    printf("A process has been created at time %d and it has remaining time %d\n", getClk(), remainingtime);
+    printf("A process has been created at time %d and it has remaining time %d\n", startTime, remainingtime);
     while (remainingtime > 0)
     {
         if (timer != getClk())
         {
             timer = getClk();
             remainingtime--;
-            printf("A process has been created at time %d and it has remaining time %d\n", getClk(), remainingtime);
+            printf("A process has been created at time %d and it has remaining time %d\n", startTime, remainingtime);
         }
         
     }
