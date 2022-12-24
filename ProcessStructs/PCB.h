@@ -7,6 +7,7 @@
 struct PCB
 {
     int pid;
+    int actualPid;
     struct ProcessData processData;
     enum State state;
     int startTime;

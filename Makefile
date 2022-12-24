@@ -1,10 +1,14 @@
 build:
 	mkdir -p build
-	gcc process_generator.c ./DataStructures/Queue.c ./ipc/MsgQueue.c -o ./build/process_generator.out
-	gcc clk.c -o ./build/clk.out
-	gcc scheduler.c ./ipc/MsgQueue.c ./ProcessStructs/PCB.c -o ./build/scheduler.out
-	gcc process.c -o ./build/process.out
+	gcc process_generator.c headers.c ./DataStructures/Queue.c ./ipc/MsgQueue.c -o ./build/process_generator.out
+	gcc clk.c headers.c -o ./build/clk.out
+	gcc scheduler.c headers.c ./ipc/MsgQueue.c ./ProcessStructs/PCB.c ./DataStructures/Queue.c -o ./build/scheduler.out
+	gcc process.c headers.c -o ./build/process.out
 	gcc test_generator.c -o ./build/test_generator.out
+	gcc ./schedulers/scheduler-sjf.c headers.c ./ipc/MsgQueue.c ./DataStructures/Queue.c ./ProcessStructs/PCB.c ./schedulers/scheduler-utils.c -o ./build/scheduler-sjf.out
+	gcc ./schedulers/scheduler-hpf.c headers.c ./ipc/MsgQueue.c ./DataStructures/Queue.c ./ProcessStructs/PCB.c ./schedulers/scheduler-utils.c -o ./build/scheduler-hpf.out
+	gcc ./schedulers/scheduler-rr.c headers.c ./ipc/MsgQueue.c ./DataStructures/Queue.c ./ProcessStructs/PCB.c ./schedulers/scheduler-utils.c -o ./build/scheduler-rr.out
+	gcc ./schedulers/scheduler-mlf.c headers.c ./ipc/MsgQueue.c ./DataStructures/Queue.c ./ProcessStructs/PCB.c ./schedulers/scheduler-utils.c -o ./build/scheduler-mlf.out
 
 clean:
 	rm -f *.out  processes.txt build/*
