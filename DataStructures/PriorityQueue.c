@@ -84,32 +84,32 @@ struct PriorQueueNode* peek(struct PriorQueue* q)
         return NULL;
     return q->front;
 }
-int main()
-{ 
-    struct PriorQueue* s=createPriorQueue();
-    printf("1 empty 0 not empty %d : \n",PriorisEmpty(s));
-    struct ProcessData pData;
-    pData.priority=6;
-    Priorenqueue(s,pData,6);
-    pData.priority=4;
-    Priorenqueue(s,pData,4);
-    pData.priority=7;
-    Priorenqueue(s,pData,7);
-    printf("1 empty 0 not empty %d : \n",PriorisEmpty(s));
-    PriorprintQueue(s);
-    Priordequeue(s);
-    printf("--------------------------------- \n");
-    PriorprintQueue(s);
-    printf("--------------------------------- \n");
-    Priordequeue(s);
-    printf("--------------------------------- \n");
-    PriorprintQueue(s);
-     Priordequeue(s);
-    printf("--------------------------------- \n");
-    PriorprintQueue(s);
-     Priordequeue(s);
-    printf("--------------------------------- \n");
-    PriorprintQueue(s);
+// int main()
+// { 
+//     struct PriorQueue* s=createPriorQueue();
+//     printf("1 empty 0 not empty %d : \n",PriorisEmpty(s));
+//     struct ProcessData pData;
+//     pData.priority=6;
+//     Priorenqueue(s,pData,6);
+//     pData.priority=4;
+//     Priorenqueue(s,pData,4);
+//     pData.priority=7;
+//     Priorenqueue(s,pData,7);
+//     printf("1 empty 0 not empty %d : \n",PriorisEmpty(s));
+//     PriorprintQueue(s);
+//     Priordequeue(s);
+//     printf("--------------------------------- \n");
+//     PriorprintQueue(s);
+//     printf("--------------------------------- \n");
+//     Priordequeue(s);
+//     printf("--------------------------------- \n");
+//     PriorprintQueue(s);
+//      Priordequeue(s);
+//     printf("--------------------------------- \n");
+//     PriorprintQueue(s);
+//      Priordequeue(s);
+//     printf("--------------------------------- \n");
+//     PriorprintQueue(s);
 
             
 
@@ -123,4 +123,4 @@ int main()
 
 
 
-}
+// }
