@@ -48,8 +48,8 @@ int runProcess(int runningTime)
 
 int runNextProcess(struct ProcessData* pData)
 {
-    int actualPid = runProcess(pData->runningTime);
     int pcbIndex = getPCBIndex(pData->id);
+    int actualPid = runProcess(pcbArray[pcbIndex].remainingTime);
     pcbArray[pcbIndex].actualPid = actualPid;
     pcbArray[pcbIndex].state = RUNNING;
     return actualPid;
