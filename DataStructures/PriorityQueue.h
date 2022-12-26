@@ -9,6 +9,7 @@ struct PriorQueueNode
 {
     struct ProcessData pData;
     struct PriorQueueNode* next;
+    int priority;
 };
 
 
@@ -22,7 +23,7 @@ struct PriorQueue* createPriorQueue();
 
 
 // Function to push according to priority
-void Priorenqueue(struct PriorQueue* q, struct ProcessData pData);
+void Priorenqueue(struct PriorQueue* q, struct ProcessData pData,int priority);
 // Removes the element with the
 // highest priority from the list
 struct ProcessData Priordequeue(struct PriorQueue* q);

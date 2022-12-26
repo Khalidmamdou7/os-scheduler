@@ -13,13 +13,19 @@ struct PriorQueue* createPriorQueue()
 
 
 
-void Priorenqueue(struct PriorQueue* q, struct ProcessData pData)
+void Priorenqueue(struct PriorQueue* q, struct ProcessData pData,int priority)
 {
     struct PriorQueueNode* newNode = (struct PriorQueueNode*)malloc(sizeof(struct PriorQueueNode));
     newNode->pData = pData;
+    newNode->priority=priority;
     newNode->next = NULL;
     struct PriorQueueNode* start=q->front;
-    if(q->front->pData.priority>newNode->pData.priority)
+    if(PriorisEmpty(q))
+    {
+        q->front=newNode;
+        return;
+    }
+    if(q->front->priority  >  newNode->priority)
     {
 
         newNode->next=q->front;
@@ -27,7 +33,7 @@ void Priorenqueue(struct PriorQueue* q, struct ProcessData pData)
     }
     else
     {
-        while(start->next!=NULL&&start->next->pData.priority<newNode->pData.priority)
+        while(start->next!=NULL&&start->next->priority <  newNode->priority)
         {
         start=start->next;
         }
@@ -38,9 +44,15 @@ void Priorenqueue(struct PriorQueue* q, struct ProcessData pData)
 }
 struct ProcessData Priordequeue(struct PriorQueue* q)
 {
-  struct PriorQueueNode* start=q->front;
-  q->front=q->front->next;
-  free(start);
+    if (q->front == NULL)
+    {
+        struct ProcessData p;
+        p.id = -1;
+        return p;
+    }
+    struct PriorQueueNode* start=q->front;
+    q->front=q->front->next;
+    free(start);
 
 }
 
@@ -58,8 +70,8 @@ void PriorprintQueue(struct PriorQueue* q)
     struct PriorQueueNode* temp = q->front;
     while (temp != NULL)
     {
-        printf("Process %d arrived at %d and will run for %d with priority %d\n",
-            temp->pData.id, temp->pData.arrivalTime, temp->pData.runningTime, temp->pData.priority);
+        printf("Process %d arrived at %d and will run for %d with priority %d actual priority %d  \n",
+            temp->pData.id, temp->pData.arrivalTime, temp->pData.runningTime, temp->pData.priority,temp->priority);
         temp = temp->next;
     }
 }
@@ -71,4 +83,44 @@ struct PriorQueueNode* peek(struct PriorQueue* q)
     if (q->front == NULL)
         return NULL;
     return q->front;
+}
+int main()
+{ 
+    struct PriorQueue* s=createPriorQueue();
+    printf("1 empty 0 not empty %d : \n",PriorisEmpty(s));
+    struct ProcessData pData;
+    pData.priority=6;
+    Priorenqueue(s,pData,6);
+    pData.priority=4;
+    Priorenqueue(s,pData,4);
+    pData.priority=7;
+    Priorenqueue(s,pData,7);
+    printf("1 empty 0 not empty %d : \n",PriorisEmpty(s));
+    PriorprintQueue(s);
+    Priordequeue(s);
+    printf("--------------------------------- \n");
+    PriorprintQueue(s);
+    printf("--------------------------------- \n");
+    Priordequeue(s);
+    printf("--------------------------------- \n");
+    PriorprintQueue(s);
+     Priordequeue(s);
+    printf("--------------------------------- \n");
+    PriorprintQueue(s);
+     Priordequeue(s);
+    printf("--------------------------------- \n");
+    PriorprintQueue(s);
+
+            
+
+
+
+
+
+
+
+
+
+
+
 }
