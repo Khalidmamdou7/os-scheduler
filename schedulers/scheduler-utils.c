@@ -2,6 +2,7 @@
 #include "../ipc/MsgQueue.h"
 #include "../ipc/MsgStruct.h"
 #include "../DataStructures/Queue.h"
+#include"../DataStructures/PriorityQueue.h"
 
 
 
@@ -96,6 +97,7 @@ void processStopped(int signum)
     int pid = wait(&remainingTime);
     int pcbIndex = getPCBIndex(pid);
     // TODO: Update the process state
+
     // TODO: Update the process statistics
     // TODO: Log the process termination and statistics
     // TODO: Delete the process from the pcb array if it has no remaining time

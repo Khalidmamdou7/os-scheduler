@@ -13,7 +13,7 @@ struct PriorQueue* createPriorQueue()
 
 
 
-void enqueue(struct PriorQueue* q, struct ProcessData pData)
+void Priorenqueue(struct PriorQueue* q, struct ProcessData pData)
 {
     struct PriorQueueNode* newNode = (struct PriorQueueNode*)malloc(sizeof(struct PriorQueueNode));
     newNode->pData = pData;
@@ -36,21 +36,24 @@ void enqueue(struct PriorQueue* q, struct ProcessData pData)
     }
 
 }
-struct ProcessData dequeue(struct PriorQueue* q)
+struct ProcessData Priordequeue(struct PriorQueue* q)
 {
   struct PriorQueueNode* start=q->front;
   q->front=q->front->next;
   free(start);
 
 }
-int isEmpty(struct PriorQueue* q)
+
+
+int PriorisEmpty(struct PriorQueue* q)
 {
     if (q->front == NULL)
         return 1;
     return 0;
 }
 
-void printQueue(struct PriorQueue* q)
+
+void PriorprintQueue(struct PriorQueue* q)
 {
     struct PriorQueueNode* temp = q->front;
     while (temp != NULL)
@@ -60,6 +63,8 @@ void printQueue(struct PriorQueue* q)
         temp = temp->next;
     }
 }
+
+
 
 struct PriorQueueNode* peek(struct PriorQueue* q)
 {
