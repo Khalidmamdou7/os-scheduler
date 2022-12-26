@@ -1,69 +1,69 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "PriorityQueue.h"
- 
- 
-// Function to Create A New Node
-Node* newNode(int d, int p)
+
+
+struct PriorQueue* createPriorQueue()
 {
-    Node* temp = (Node*)malloc(sizeof(Node));
-    temp->data = d;
-    temp->priority = p;
-    temp->next = NULL;
- 
-    return temp;
+    struct PriorQueue* q = (struct PriorQueue*)malloc(sizeof(struct PriorQueue));
+    q->front = NULL;
+    q->rear = NULL;
+    return q;
 }
- 
-// Return the value at head
-int peek(Node** head)
+
+
+
+void enqueue(struct PriorQueue* q, struct ProcessData pData)
 {
-    return (*head)->data;
-}
- 
-// Removes the element with the
-// highest priority from the list
-void pop(Node** head)
-{
-    Node* temp = *head;
-    (*head) = (*head)->next;
-    free(temp);
-}
- 
-// Function to push according to priority
-void push(Node** head, int d, int p)
-{
-    Node* start = (*head);
- 
-    // Create new Node
-    Node* temp = newNode(d, p);
- 
-    // Special Case: The head of list has lesser
-    // priority than new node. So insert new
-    // node before head node and change head node.
-    if ((*head)->priority > p) {
- 
-        // Insert New Node before head
-        temp->next = *head;
-        (*head) = temp;
+    struct PriorQueueNode* newNode = (struct PriorQueueNode*)malloc(sizeof(struct PriorQueueNode));
+    newNode->pData = pData;
+    newNode->next = NULL;
+    struct PriorQueueNode* start=q->front;
+    if(q->front->pData.priority>newNode->pData.priority)
+    {
+
+        newNode->next=q->front;
+        q->front=newNode;
     }
-    else {
- 
-        // Traverse the list and find a
-        // position to insert new node
-        while (start->next != NULL &&
-            start->next->priority < p) {
-            start = start->next;
+    else
+    {
+        while(start->next!=NULL&&start->next->pData.priority<newNode->pData.priority)
+        {
+        start=start->next;
         }
- 
-        // Either at the ends of the list
-        // or at required position
-        temp->next = start->next;
-        start->next = temp;
+        newNode->next=start->next;
+        start->next=newNode;
+    }
+
+}
+struct ProcessData dequeue(struct PriorQueue* q)
+{
+  struct PriorQueueNode* start=q->front;
+  q->front=q->front->next;
+  free(start);
+
+}
+int isEmpty(struct PriorQueue* q)
+{
+    if (q->front == NULL)
+        return 1;
+    return 0;
+}
+
+void printQueue(struct PriorQueue* q)
+{
+    struct PriorQueueNode* temp = q->front;
+    while (temp != NULL)
+    {
+        printf("Process %d arrived at %d and will run for %d with priority %d\n",
+            temp->pData.id, temp->pData.arrivalTime, temp->pData.runningTime, temp->pData.priority);
+        temp = temp->next;
     }
 }
- 
-// Function to check is list is empty
-int isEmpty(Node** head)
+
+struct PriorQueueNode* peek(struct PriorQueue* q)
 {
-    return (*head) == NULL;
+    if (q->front == NULL)
+        return NULL;
+    return q->front;
 }
