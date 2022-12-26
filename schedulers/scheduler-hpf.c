@@ -64,7 +64,7 @@ void processRecieved(int signum) {
     recieveProcess();
     
     // TODO: Use the priority ready queue instead of normal queue (and with pcb)
-    Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].remainingTime);
+    Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].processData.priority);
     if (peek(readyQueue)->pData.id == pcbArray[pcbArraySize].processData.id)
     {
         if (isProcessRunning)
@@ -97,7 +97,7 @@ void processStopped(int signum)
     {
         pcbArray[pcbIndex].remainingTime = remainingTime;
         pcbArray[pcbIndex].state = READY;
-        Priorenqueue(readyQueue, pcbArray[pcbIndex].processData, pcbArray[pcbIndex].remainingTime);
+        Priorenqueue(readyQueue, pcbArray[pcbIndex].processData, pcbArray[pcbIndex].processData.priority);
     }
     else
     {
