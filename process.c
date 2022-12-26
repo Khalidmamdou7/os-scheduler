@@ -8,7 +8,7 @@ int remainingtime;
 int main(int agrc, char *argv[])
 {
     // Attach signal handler to handle a process stop (A preemption from the scheduler)
-    signal(SIGSTOP, stopHandler);
+    signal(SIGUSR1, stopHandler);
 
     initClk();
     int startTime = getClk();
