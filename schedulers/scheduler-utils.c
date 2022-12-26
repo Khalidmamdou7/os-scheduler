@@ -1,36 +1,16 @@
 #include "scheduler-utils.h"
 #include "../ipc/MsgQueue.h"
 #include "../ipc/MsgStruct.h"
-#include "../DataStructures/Queue.h"
-#include"../DataStructures/PriorityQueue.h"
 
 
 
 struct PCB pcbArray[MAX_PROCESSES];
 int pcbArraySize = 0;
-struct Queue* readyQueue;
 
 bool isFinishedGenerating;
 bool isProcessRunning = false;
 int msgQueueId;
 
-void attachSignalHandlers()
-{
-    // Attach signal handler to handle a process stop
-    signal(SIGCHLD, processStopped);
-    // Attach signal handler to recieve processes from process generator
-    signal(SIGUSR1, processRecieved);
-    signal(SIGUSR2, finishedGeneratingProcess);
-
-}
-
-void processRecieved(int signum) {
-    recieveProcess();
-    
-    // TODO: Use the priority ready queue instead of normal queue (and with pcb)
-    enqueue(readyQueue, pcbArray[pcbArraySize++].processData); 
-
-}
 
 void recieveProcess()
 {
@@ -52,8 +32,8 @@ void recieveProcess()
 int runProcess(int runningTime)
 {
     printf("Running a process with remaining time %d\n", runningTime);
-    int pid = fork();
-    if (pid == 0)
+    int actualPid = fork();
+    if (actualPid == 0)
     {
         // Child process
         char remainingTimeStr[10];
@@ -62,18 +42,17 @@ int runProcess(int runningTime)
         execvp(args[0], args);
     }
     isProcessRunning = true;
-    return pid;
+    return actualPid;
 
 }
 
-int runNextProcess()
+int runNextProcess(struct ProcessData* pData)
 {
-    if (isEmpty(readyQueue)) return -1;
-    int pid = runProcess(peak(readyQueue)->pData.runningTime);
-    int pcbIndex = getPCBIndex(pid);
-    pcbArray[pcbIndex].actualPid = pid;
+    int actualPid = runProcess(pData->runningTime);
+    int pcbIndex = getPCBIndex(pData->id);
+    pcbArray[pcbIndex].actualPid = actualPid;
     pcbArray[pcbIndex].state = RUNNING;
-    return pid;
+    return actualPid;
 
 }
 
@@ -90,22 +69,17 @@ int getPCBIndex(int pid)
     return -1;
 }
 
-void processStopped(int signum)
+int getPCBIndexByActualPid(int actualPid)
 {
-    printf("A process has stopped\n");
-    int remainingTime;
-    int pid = wait(&remainingTime);
-    int pcbIndex = getPCBIndex(pid);
-    // TODO: Update the process state
-
-    // TODO: Update the process statistics
-    // TODO: Log the process termination and statistics
-    // TODO: Delete the process from the pcb array if it has no remaining time
-
-    // TODO: Remove the process from the ready queue and insert it again if it has remaining time (preemptive)
-    dequeue(readyQueue);
-
-    isProcessRunning = false;
+    int i;
+    for (i = 0; i < pcbArraySize; i++)
+    {
+        if (pcbArray[i].actualPid == actualPid)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void finishedGeneratingProcess(int signum)

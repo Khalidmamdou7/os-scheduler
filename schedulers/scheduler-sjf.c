@@ -2,6 +2,14 @@
 #include <stdio.h>
 #include <sys/ipc.h>
 #include "scheduler-utils.h"
+#include "../DataStructures/PriorityQueue.h"
+
+struct PriorQueue* readyQueue;
+
+void attachSignalHandlers();
+void processStopped(int signum);
+void processRecieved(int signum);
+
 
 
 int main(int argc, char *argv[])
@@ -13,17 +21,18 @@ int main(int argc, char *argv[])
     msgQueueId = getMsgQueue(msgKey);
     printf("SJF connected to the message queue with id %d\n", msgQueueId);
 
-    readyQueue = createQueue();
+    readyQueue = createPriorQueue();
     attachSignalHandlers();
 
-    while (!isFinishedGenerating || isProcessRunning || !isEmpty(readyQueue))
+    while (!isFinishedGenerating || isProcessRunning || !PriorisEmpty(readyQueue))
     {
         if (!isProcessRunning)
         {
-            if (!isEmpty(readyQueue))
+            if (!PriorisEmpty(readyQueue))
             {
-                printf("Scheduler-sjf is running the next process %d\n", peak(readyQueue)->pData.id);
-                runNextProcess();
+                printf("Scheduler-sjf is running the next process %d\n", peek(readyQueue)->pData.id);
+                runNextProcess(&peek(readyQueue)->pData);
+                Priordequeue(readyQueue);
             }
         }
         printf("SJF is sleeping\n");
@@ -32,4 +41,53 @@ int main(int argc, char *argv[])
 
 
     printf("SJF is done\n");
+}
+
+void attachSignalHandlers()
+{
+    // Attach signal handler to handle a process stop
+    signal(SIGCHLD, processStopped);
+    // Attach signal handler to recieve processes from process generator
+    signal(SIGUSR1, processRecieved);
+    signal(SIGUSR2, finishedGeneratingProcess);
+
+}
+
+void processRecieved(int signum) {
+    recieveProcess();
+    
+    // TODO: Use the priority ready queue instead of normal queue (and with pcb)
+    Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].remainingTime);
+    pcbArraySize++;
+    PriorprintQueue(readyQueue);
+
+}
+
+void processStopped(int signum)
+{
+    printf("A process has stopped\n");
+    int remainingTime;
+    int actualPid = wait(&remainingTime);
+    int pcbIndex = getPCBIndexByActualPid(actualPid);
+    // TODO: Update the process state
+
+    // TODO: Update the process statistics
+    // TODO: Log the process termination and statistics
+    // TODO: Delete the process from the pcb array if it has no remaining time
+
+    // TODO: Remove the process from the ready queue and insert it again if it has remaining time (preemptive)
+    if (remainingTime > 0)
+    {
+        pcbArray[pcbIndex].remainingTime = remainingTime;
+        pcbArray[pcbIndex].state = READY;
+        Priorenqueue(readyQueue, pcbArray[pcbArraySize++].processData, pcbArray[pcbArraySize++].remainingTime);
+    }
+    else
+    {
+        pcbArray[pcbIndex].state = TERMINATED;
+        pcbArray[pcbIndex].remainingTime = 0;
+        pcbArray[pcbIndex].actualPid = -1;
+    }
+
+    isProcessRunning = false;
 }
