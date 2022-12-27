@@ -3,8 +3,12 @@
 #include <sys/ipc.h>
 #include "scheduler-utils.h"
 #include "../DataStructures/PriorityQueue.h"
+#include "../utils/Logger.h"
 
 struct PriorQueue* readyQueue;
+float cpuUtilization;
+float avgWeightedTurnaroundTime;
+float avgTurnaroundTime;
 
 void attachSignalHandlers();
 void processStopped(int signum);
@@ -24,6 +28,8 @@ int main(int argc, char *argv[])
     readyQueue = createPriorQueue();
     attachSignalHandlers();
 
+    initClk();
+
     while (!isFinishedGenerating || isProcessRunning || !PriorisEmpty(readyQueue))
     {
         if (!isProcessRunning)
@@ -32,6 +38,12 @@ int main(int argc, char *argv[])
             {
                 printf("Scheduler-sjf is running the next process %d\n", peek(readyQueue)->pData.id);
                 runNextProcess(&peek(readyQueue)->pData);
+                int pcbIndex = getPCBIndex(peek(readyQueue)->pData.id);
+                logState(getClk(), pcbArray[pcbIndex].processData.id , STARTED,
+                        pcbArray[pcbIndex].processData.arrivalTime,
+                        pcbArray[pcbIndex].processData.runningTime,
+                        pcbArray[pcbIndex].remainingTime,
+                        pcbArray[pcbIndex].waitingTime);
                 Priordequeue(readyQueue);
             }
         }
@@ -39,7 +51,7 @@ int main(int argc, char *argv[])
         sleep(1);
     }
 
-
+    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
     printf("SJF is done\n");
 }
 
@@ -73,6 +85,13 @@ void processStopped(int signum)
 
     // TODO: Update the process statistics
     // TODO: Log the process termination and statistics
+    logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
+                pcbArray[pcbIndex].processData.arrivalTime,
+                pcbArray[pcbIndex].processData.runningTime,
+                pcbArray[pcbIndex].remainingTime,
+                pcbArray[pcbIndex].waitingTime,
+                pcbArray[pcbIndex].turnaroundTime,
+                pcbArray[pcbIndex].weightedTurnaroundTime);
     // TODO: Delete the process from the pcb array if it has no remaining time
 
     // TODO: Remove the process from the ready queue and insert it again if it has remaining time (preemptive)
