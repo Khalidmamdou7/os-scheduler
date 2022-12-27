@@ -9,6 +9,7 @@ struct Queue* readyQueue;
 float cpuUtilization = 0;
 float avgWeightedTurnaroundTime = 0;
 float avgTurnaroundTime = 0;
+float avgWaitingTime = 0;
 
 void processRecieved();
 void attachSignalHandlers();
@@ -37,6 +38,7 @@ void processStopped(int signum)
 
         avgTurnaroundTime += pcbArray[pcbIndex].turnaroundTime;
         avgWeightedTurnaroundTime += pcbArray[pcbIndex].weightedTurnaroundTime;
+        avgWaitingTime += pcbArray[pcbIndex].waitingTime;
         cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
 
         logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
@@ -132,9 +134,10 @@ int main(int argc, char *argv[])
 
     avgTurnaroundTime /= pcbArraySize;
     avgWeightedTurnaroundTime /= pcbArraySize;
+    avgWaitingTime /= pcbArraySize;
     cpuUtilization /= getClk();
     cpuUtilization *= 100;
-    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
+    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime, avgWaitingTime);
 
     printf("RR is done\n");
 

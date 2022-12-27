@@ -9,6 +9,7 @@ struct PriorQueue* readyQueue;
 float cpuUtilization;
 float avgWeightedTurnaroundTime;
 float avgTurnaroundTime;
+float avgWaitingTime;
 
 void attachSignalHandlers();
 void processStopped(int signum);
@@ -54,9 +55,10 @@ int main(int argc, char *argv[])
 
     avgWeightedTurnaroundTime /= pcbArraySize;
     avgTurnaroundTime /= pcbArraySize;
+    avgWaitingTime /= pcbArraySize;
     cpuUtilization /= getClk();
     cpuUtilization *= 100;
-    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
+    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime, avgWaitingTime);
     printf("SJF is done\n");
 }
 
@@ -103,6 +105,7 @@ void processStopped(int signum)
     // TODO: Update the process statistics
     avgTurnaroundTime += pcbArray[pcbIndex].turnaroundTime;
     avgWeightedTurnaroundTime += pcbArray[pcbIndex].weightedTurnaroundTime;
+    avgWaitingTime += pcbArray[pcbIndex].waitingTime;
     cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
 
     // TODO: Log the process termination and statistics
