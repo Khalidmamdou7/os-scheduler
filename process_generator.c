@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     struct MsgStruct msg = {
         .mtype = 1,
         .data = peak(q)->pData
-    };
+    };    
     while (!isEmpty(q))
     {
         if (msg.data.arrivalTime == getClk())
@@ -83,7 +83,8 @@ int main(int argc, char *argv[])
                 msgid, msg.data.id, msg.data.arrivalTime, msg.data.runningTime, msg.data.priority, getClk());
             sendMsg(msgid, msg);
             // send a signal to the scheduler to wake it up
-            kill(pid, SIGUSR1);
+            if (schAlg != 3)
+                kill(pid, SIGUSR1);
             msg.data = peak(q) ? peak(q)->pData : msg.data;
             if (isEmpty(q))
                 break;

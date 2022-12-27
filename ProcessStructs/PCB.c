@@ -4,7 +4,7 @@ struct PCB initializePCB(struct ProcessData processData) {
     struct PCB pcb;
     pcb.pid = processData.id;
     pcb.processData = processData;
-    pcb.state = WAITING;
+    pcb.state = READY;
     pcb.startTime = -1;
     pcb.finishTime = -1;
     pcb.remainingTime = processData.runningTime;

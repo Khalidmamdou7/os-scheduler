@@ -10,7 +10,6 @@ enum SchedulingAlgorithm {
 enum State {
     READY = 1,
     RUNNING = 2,
-    WAITING = 3,
     BLOCKED = 4,
     TERMINATED = 5
 };
