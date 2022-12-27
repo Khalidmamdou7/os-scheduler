@@ -36,6 +36,17 @@ struct MsgStruct receiveMsg(int msgid, long mtype)
     return msg;
 }
 
+int isMsgQueueEmpty(int msgid)
+{
+    struct msqid_ds msgQueueInfo;
+    if (msgctl(msgid, IPC_STAT, &msgQueueInfo) == -1)
+    {
+        perror("Error::MsgQueue::isMsgQueueEmpty: Error getting message queue info");
+        exit(1);
+    }
+    return msgQueueInfo.msg_qnum == 0;
+}
+
 void destroyMsgQueue(int msgid)
 {
     if (msgctl(msgid, IPC_RMID, NULL) == -1)
