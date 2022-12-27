@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
                         pcbArray[runningProcessPcbIndex].processData.runningTime,
                         pcbArray[runningProcessPcbIndex].remainingTime,
                         pcbArray[runningProcessPcbIndex].waitingTime);
-                Priordequeue(readyQueue);
             }
         }
         printf("HPF is sleeping\n");
@@ -126,7 +125,6 @@ void processStopped(int signum)
         pcbArray[pcbIndex].remainingTime = remainingTime;
         pcbArray[pcbIndex].state = READY;
         pcbArray[pcbIndex].lastStoppedTime = getClk();
-        Priorenqueue(readyQueue, pcbArray[pcbIndex].processData, pcbArray[pcbIndex].processData.priority);
 
         logState(getClk(), pcbArray[pcbIndex].processData.id, STOPPED,
                 pcbArray[pcbIndex].processData.arrivalTime,
@@ -153,6 +151,10 @@ void processStopped(int signum)
                 pcbArray[pcbIndex].waitingTime,
                 pcbArray[pcbIndex].turnaroundTime,
                 pcbArray[pcbIndex].weightedTurnaroundTime);
+        
+        Priordequeue(readyQueue);
+        PriorprintQueue(readyQueue);
+
     }
 
     isProcessRunning = false;
