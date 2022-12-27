@@ -3,9 +3,14 @@
 #include <sys/ipc.h>
 #include "scheduler-utils.h"
 #include "../DataStructures/PriorityQueue.h"
+#include "../utils/Logger.h"
 
 struct PriorQueue* readyQueue;
 int runningProcessPcbIndex = -1;
+
+float cpuUtilization = 0;
+float avgWeightedTurnaroundTime = 0;
+float avgTurnaroundTime = 0;
 
 void attachSignalHandlers();
 void processStopped(int signum);
@@ -26,6 +31,7 @@ int main(int argc, char *argv[])
     // TODO: Implement HPF algorithm using the helper functions in scheduler-utils.h
     readyQueue = createPriorQueue();
     attachSignalHandlers();
+    initClk();
 
     while (!isFinishedGenerating || isProcessRunning || !PriorisEmpty(readyQueue))
     {
@@ -36,6 +42,14 @@ int main(int argc, char *argv[])
                 printf("Scheduler-hpf is running the next process %d\n", peek(readyQueue)->pData.id);
                 runNextProcess(&peek(readyQueue)->pData);
                 runningProcessPcbIndex = getPCBIndex(peek(readyQueue)->pData.id);
+                enum LogState state = STARTED;
+                if (pcbArray[runningProcessPcbIndex].remainingTime != pcbArray[runningProcessPcbIndex].processData.runningTime)
+                    state = RESUMED;
+                logState(getClk(), pcbArray[runningProcessPcbIndex].processData.id , state,
+                        pcbArray[runningProcessPcbIndex].processData.arrivalTime,
+                        pcbArray[runningProcessPcbIndex].processData.runningTime,
+                        pcbArray[runningProcessPcbIndex].remainingTime,
+                        pcbArray[runningProcessPcbIndex].waitingTime);
                 Priordequeue(readyQueue);
             }
         }
@@ -45,6 +59,7 @@ int main(int argc, char *argv[])
 
 
 
+    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
 
     printf("HPF is done\n");
 
@@ -98,12 +113,25 @@ void processStopped(int signum)
         pcbArray[pcbIndex].remainingTime = remainingTime;
         pcbArray[pcbIndex].state = READY;
         Priorenqueue(readyQueue, pcbArray[pcbIndex].processData, pcbArray[pcbIndex].processData.priority);
+
+        logState(getClk(), pcbArray[pcbIndex].processData.id, STOPPED,
+                pcbArray[pcbIndex].processData.arrivalTime,
+                pcbArray[pcbIndex].processData.runningTime,
+                pcbArray[pcbIndex].remainingTime,
+                pcbArray[pcbIndex].waitingTime);
     }
     else
     {
         pcbArray[pcbIndex].state = TERMINATED;
         pcbArray[pcbIndex].remainingTime = 0;
         pcbArray[pcbIndex].actualPid = -1;
+        logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
+                pcbArray[pcbIndex].processData.arrivalTime,
+                pcbArray[pcbIndex].processData.runningTime,
+                pcbArray[pcbIndex].remainingTime,
+                pcbArray[pcbIndex].waitingTime,
+                pcbArray[pcbIndex].turnaroundTime,
+                pcbArray[pcbIndex].weightedTurnaroundTime);
     }
 
     isProcessRunning = false;
