@@ -4,9 +4,9 @@
 #include "scheduler-utils.h"
 #include "../DataStructures/Queue.h"
 struct Queue* readyQueue;
-void processRecieved(int signum);
+void processRecieved();
 void attachSignalHandlers();
-void quantumFinished(int signum);
+void quantumFinished();
 
 void processStopped(int signum)
 {
@@ -39,10 +39,12 @@ int main(int argc, char *argv[])
     key_t msgKey = ftok("./ipc/keyfile", 65);
     msgQueueId = getMsgQueue(msgKey);                                       
     printf("RR connected to the message queue with id %d\n", msgQueueId);
+    initClk();
 
     readyQueue = createQueue();
     attachSignalHandlers();
     int Q=atoi(argv[1]);
+
 
     while (!isFinishedGenerating || isProcessRunning || !isEmpty(readyQueue))
     {
@@ -59,12 +61,25 @@ int main(int argc, char *argv[])
                 printf("stop process with id =%d \n",pcbArray[pcbindex].actualPid);
                 kill(pcbArray[pcbindex].actualPid,SIGUSR1);*/
                 if(pcbArray[pcbindex].remainingTime>Q)
-                alarm(Q);
-                else
-                alarm(pcbArray[pcbindex].remainingTime);
-
+                {
+                    printf("at time %d, alarm has been set for %d \n",getClk(),Q);
+                    int timer = getClk();
+                    while (getClk() - timer < Q) {};
+                    
+                }
+                else{
+                    printf("at time %d, alarm has been set for %d \n",getClk(),pcbArray[pcbindex].remainingTime);
+                    int timer = getClk();
+                    while (getClk() - timer < pcbArray[pcbindex].remainingTime) {};
+                    // sleep(pcbArray[pcbindex].remainingTime);
+                }
 
             }
+            while (!isMsgQueueEmpty(msgQueueId))
+            {
+                processRecieved();
+            }
+            quantumFinished();
         }
     }
 
@@ -77,12 +92,12 @@ void attachSignalHandlers()
     // Attach signal handler to handle a process stop
     signal(SIGCHLD, processStopped);
     // Attach signal handler to recieve processes from process generator
-    signal(SIGUSR1, processRecieved);
+    // signal(SIGUSR1, processRecieved);
     signal(SIGUSR2, finishedGeneratingProcess);
-    signal(SIGALRM,quantumFinished);
+    // signal(SIGALRM,quantumFinished);
 
 }
-void processRecieved(int signum) {
+void processRecieved() {
     recieveProcess();
     
     // TODO: Use the priority ready queue instead of normal queue (and with pcb)
@@ -91,12 +106,13 @@ void processRecieved(int signum) {
     printQueue(readyQueue);
 
 }
-void quantumFinished(int signum)
+void quantumFinished()
 {
+    printf("At time %d, quantum finished\n",getClk());
     if(isProcessRunning)
     {
-     int actualpid=pcbArray[getPCBIndex(peak(readyQueue)->pData.id)].actualPid;
-    kill(actualpid,SIGUSR1);
+        int actualpid=pcbArray[getPCBIndex(peak(readyQueue)->pData.id)].actualPid;
+        kill(actualpid,SIGUSR1);
     }
 
 }
