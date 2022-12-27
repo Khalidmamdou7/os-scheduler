@@ -45,6 +45,16 @@ int main(int argc, char *argv[])
                 enum LogState state = STARTED;
                 if (pcbArray[runningProcessPcbIndex].remainingTime != pcbArray[runningProcessPcbIndex].processData.runningTime)
                     state = RESUMED;
+                
+                // TODO: Update the process state
+                pcbArray[runningProcessPcbIndex].state = RUNNING;
+                if (state == STARTED){
+                    pcbArray[runningProcessPcbIndex].startTime = getClk();
+                    pcbArray[runningProcessPcbIndex].waitingTime = getClk() - pcbArray[runningProcessPcbIndex].processData.arrivalTime;
+                } else {
+                    pcbArray[runningProcessPcbIndex].waitingTime += getClk() - pcbArray[runningProcessPcbIndex].lastStoppedTime;
+                }
+
                 logState(getClk(), pcbArray[runningProcessPcbIndex].processData.id , state,
                         pcbArray[runningProcessPcbIndex].processData.arrivalTime,
                         pcbArray[runningProcessPcbIndex].processData.runningTime,
@@ -58,7 +68,10 @@ int main(int argc, char *argv[])
     }
 
 
-
+    avgTurnaroundTime /= pcbArraySize;
+    avgWeightedTurnaroundTime /= pcbArraySize;
+    cpuUtilization /= getClk();
+    cpuUtilization *= 100;
     logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
 
     printf("HPF is done\n");
@@ -112,6 +125,7 @@ void processStopped(int signum)
     {
         pcbArray[pcbIndex].remainingTime = remainingTime;
         pcbArray[pcbIndex].state = READY;
+        pcbArray[pcbIndex].lastStoppedTime = getClk();
         Priorenqueue(readyQueue, pcbArray[pcbIndex].processData, pcbArray[pcbIndex].processData.priority);
 
         logState(getClk(), pcbArray[pcbIndex].processData.id, STOPPED,
@@ -125,6 +139,13 @@ void processStopped(int signum)
         pcbArray[pcbIndex].state = TERMINATED;
         pcbArray[pcbIndex].remainingTime = 0;
         pcbArray[pcbIndex].actualPid = -1;
+        pcbArray[pcbIndex].finishTime = getClk();
+        pcbArray[pcbIndex].turnaroundTime = getClk() - pcbArray[pcbIndex].processData.arrivalTime;
+        pcbArray[pcbIndex].weightedTurnaroundTime = (float)pcbArray[pcbIndex].turnaroundTime / pcbArray[pcbIndex].processData.runningTime;
+
+        avgTurnaroundTime += pcbArray[pcbIndex].turnaroundTime;
+        avgWeightedTurnaroundTime += pcbArray[pcbIndex].weightedTurnaroundTime;
+        cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
         logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
                 pcbArray[pcbIndex].processData.arrivalTime,
                 pcbArray[pcbIndex].processData.runningTime,

@@ -13,6 +13,7 @@ struct PCB
     int startTime;
     int finishTime;
     int remainingTime;
+    int lastStoppedTime;
     int waitingTime;
     int turnaroundTime;
     float weightedTurnaroundTime;
