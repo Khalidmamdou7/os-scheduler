@@ -3,7 +3,13 @@
 #include <sys/ipc.h>
 #include "scheduler-utils.h"
 #include "../DataStructures/Queue.h"
+#include "../utils/Logger.h"
+
 struct Queue* readyQueue;
+float cpuUtilization = 0;
+float avgWeightedTurnaroundTime = 0;
+float avgTurnaroundTime = 0;
+
 void processRecieved();
 void attachSignalHandlers();
 void quantumFinished();
@@ -22,6 +28,20 @@ void processStopped(int signum)
     // TODO: Update the process statistics
 
     // TODO: Log the process termination and statistics
+    if (pcbArray[pcbIndex].state == TERMINATED)
+        logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
+                    pcbArray[pcbIndex].processData.arrivalTime,
+                    pcbArray[pcbIndex].processData.runningTime,
+                    pcbArray[pcbIndex].remainingTime,
+                    pcbArray[pcbIndex].waitingTime,
+                    pcbArray[pcbIndex].turnaroundTime,
+                    pcbArray[pcbIndex].weightedTurnaroundTime);
+    else
+        logState(getClk(), pcbArray[pcbIndex].processData.id, STOPPED,
+                 pcbArray[pcbIndex].processData.arrivalTime,
+                 pcbArray[pcbIndex].processData.runningTime,
+                 pcbArray[pcbIndex].remainingTime,
+                 pcbArray[pcbIndex].waitingTime);
     // TODO: Delete the process from the pcb array if it has no remaining time
 
     // TODO: Remove the process from the ready queue and insert it again if it has remaining time (preemptive)
@@ -57,6 +77,18 @@ int main(int argc, char *argv[])
                 
                 runNextProcess(&p->pData);
                 int pcbindex=getPCBIndex(p->pData.id);
+                
+                enum LogState state = STARTED;
+                if (pcbArray[pcbindex].remainingTime != pcbArray[pcbindex].processData.runningTime)
+                {
+                    state = RESUMED;
+                }
+                logState(getClk(), pcbArray[pcbindex].processData.id, state,
+                        pcbArray[pcbindex].processData.arrivalTime,
+                        pcbArray[pcbindex].processData.runningTime,
+                        pcbArray[pcbindex].remainingTime,
+                        pcbArray[pcbindex].waitingTime);
+
                 /*sleep(Q);
                 printf("stop process with id =%d \n",pcbArray[pcbindex].actualPid);
                 kill(pcbArray[pcbindex].actualPid,SIGUSR1);*/
@@ -83,6 +115,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
 
     printf("RR is done\n");
 
