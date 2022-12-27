@@ -1,6 +1,9 @@
 // build files
 .vscode
 build
+Logs
+*.log
+*.perf
 *.out
 processes.txt
 *.gch

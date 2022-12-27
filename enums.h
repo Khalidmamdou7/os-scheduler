@@ -14,3 +14,10 @@ enum State {
     BLOCKED = 4,
     TERMINATED = 5
 };
+
+enum LogState {
+    STARTED = 1,
+    RESUMED = 2,
+    STOPPED = 3,
+    FINISHED = 4
+};
