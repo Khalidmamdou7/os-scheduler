@@ -71,12 +71,16 @@ void attachSignalHandlers()
 }
 
 void processRecieved(int signum) {
-    recieveProcess();
-    
-    // TODO: Use the priority ready queue instead of normal queue (and with pcb)
-    Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].remainingTime);
-    pcbArraySize++;
-    PriorprintQueue(readyQueue);
+    while(!isMsgQueueEmpty(msgQueueId))
+    {
+
+        recieveProcess();
+        
+        // TODO: Use the priority ready queue instead of normal queue (and with pcb)
+        Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].remainingTime);
+        pcbArraySize++;
+        PriorprintQueue(readyQueue);
+    }
 
 }
 
@@ -91,6 +95,7 @@ void processStopped(int signum)
     pcbArray[pcbIndex].remainingTime = 0;
     pcbArray[pcbIndex].actualPid = -1;
     pcbArray[pcbIndex].finishTime = getClk();
+    printf("process running time %d\n", pcbArray[pcbIndex].processData.runningTime);
     pcbArray[pcbIndex].waitingTime = pcbArray[pcbIndex].finishTime - pcbArray[pcbIndex].startTime - pcbArray[pcbIndex].processData.runningTime;
     pcbArray[pcbIndex].turnaroundTime = pcbArray[pcbIndex].finishTime - pcbArray[pcbIndex].processData.arrivalTime;
     pcbArray[pcbIndex].weightedTurnaroundTime = (float)pcbArray[pcbIndex].turnaroundTime / pcbArray[pcbIndex].processData.runningTime;
