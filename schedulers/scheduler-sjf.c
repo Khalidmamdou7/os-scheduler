@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
                 printf("Scheduler-sjf is running the next process %d\n", peek(readyQueue)->pData.id);
                 runNextProcess(&peek(readyQueue)->pData);
                 int pcbIndex = getPCBIndex(peek(readyQueue)->pData.id);
+                pcbArray[pcbIndex].startTime = getClk();
                 logState(getClk(), pcbArray[pcbIndex].processData.id , STARTED,
                         pcbArray[pcbIndex].processData.arrivalTime,
                         pcbArray[pcbIndex].processData.runningTime,
@@ -51,6 +52,10 @@ int main(int argc, char *argv[])
         sleep(1);
     }
 
+    avgWeightedTurnaroundTime /= pcbArraySize;
+    avgTurnaroundTime /= pcbArraySize;
+    cpuUtilization /= getClk();
+    cpuUtilization *= 100;
     logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
     printf("SJF is done\n");
 }
@@ -82,8 +87,19 @@ void processStopped(int signum)
     int actualPid = wait(&remainingTime);
     int pcbIndex = getPCBIndexByActualPid(actualPid);
     // TODO: Update the process state
+    pcbArray[pcbIndex].state = TERMINATED;
+    pcbArray[pcbIndex].remainingTime = 0;
+    pcbArray[pcbIndex].actualPid = -1;
+    pcbArray[pcbIndex].finishTime = getClk();
+    pcbArray[pcbIndex].waitingTime = pcbArray[pcbIndex].finishTime - pcbArray[pcbIndex].startTime - pcbArray[pcbIndex].processData.runningTime;
+    pcbArray[pcbIndex].turnaroundTime = pcbArray[pcbIndex].finishTime - pcbArray[pcbIndex].processData.arrivalTime;
+    pcbArray[pcbIndex].weightedTurnaroundTime = (float)pcbArray[pcbIndex].turnaroundTime / pcbArray[pcbIndex].processData.runningTime;
 
     // TODO: Update the process statistics
+    avgTurnaroundTime += pcbArray[pcbIndex].turnaroundTime;
+    avgWeightedTurnaroundTime += pcbArray[pcbIndex].weightedTurnaroundTime;
+    cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
+
     // TODO: Log the process termination and statistics
     logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
                 pcbArray[pcbIndex].processData.arrivalTime,
@@ -95,18 +111,6 @@ void processStopped(int signum)
     // TODO: Delete the process from the pcb array if it has no remaining time
 
     // TODO: Remove the process from the ready queue and insert it again if it has remaining time (preemptive)
-    if (remainingTime > 0)
-    {
-        pcbArray[pcbIndex].remainingTime = remainingTime;
-        pcbArray[pcbIndex].state = READY;
-        Priorenqueue(readyQueue, pcbArray[pcbArraySize++].processData, pcbArray[pcbArraySize++].remainingTime);
-    }
-    else
-    {
-        pcbArray[pcbIndex].state = TERMINATED;
-        pcbArray[pcbIndex].remainingTime = 0;
-        pcbArray[pcbIndex].actualPid = -1;
-    }
 
     isProcessRunning = false;
 }
