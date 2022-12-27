@@ -46,6 +46,8 @@ void processStopped(int signum)
                     pcbArray[pcbIndex].waitingTime,
                     pcbArray[pcbIndex].turnaroundTime,
                     pcbArray[pcbIndex].weightedTurnaroundTime);
+        
+        deletePCB(pcbIndex);
     }
     else
         logState(getClk(), pcbArray[pcbIndex].processData.id, STOPPED,
@@ -130,8 +132,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    avgTurnaroundTime /= pcbArraySize;
-    avgWeightedTurnaroundTime /= pcbArraySize;
+    avgTurnaroundTime /= totalProcesses;
+    avgWeightedTurnaroundTime /= totalProcesses;
     cpuUtilization /= getClk();
     cpuUtilization *= 100;
     logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);

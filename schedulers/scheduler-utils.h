@@ -6,6 +6,7 @@
 
 extern struct PCB pcbArray[MAX_PROCESSES];
 extern int pcbArraySize;
+extern int totalProcesses;
 
 
 extern bool isFinishedGenerating;

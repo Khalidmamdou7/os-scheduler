@@ -6,6 +6,7 @@
 
 struct PCB pcbArray[MAX_PROCESSES];
 int pcbArraySize = 0;
+int totalProcesses = 0;
 
 bool isFinishedGenerating;
 bool isProcessRunning = false;
@@ -18,7 +19,7 @@ void recieveProcess()
 
     struct MsgStruct msg = receiveMsg(msgQueueId, 1);
     printf("Received message from process generator: %d %d %d %d\n", msg.data.id, msg.data.arrivalTime, msg.data.runningTime, msg.data.priority);    
-
+    totalProcesses++;
     if (pcbArraySize == MAX_PROCESSES)
     {
         printf("Error: Reached maximum number of processes\n");
@@ -80,6 +81,16 @@ int getPCBIndexByActualPid(int actualPid)
         }
     }
     return -1;
+}
+
+void deletePCB(int pcbIndex) {
+    printf("Deleting PCB with index %d...\n", pcbIndex);
+    int i;
+    for (i = pcbIndex; i < pcbArraySize - 1; i++)
+    {
+        pcbArray[i] = pcbArray[i + 1];
+    }
+    pcbArraySize--;
 }
 
 void finishedGeneratingProcess(int signum)

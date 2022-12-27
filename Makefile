@@ -13,10 +13,9 @@ build:
 	gcc ./schedulers/scheduler-mlf.c headers.c ./ipc/MsgQueue.c ./DataStructures/Queue.c ./ProcessStructs/PCB.c ./schedulers/scheduler-utils.c -o ./build/scheduler-mlf.out
 
 clean:
-	rm -f *.out  processes.txt build/* Logs/* *.log *.perf
+	rm -f *.out build/* Logs/* *.log *.perf
 
 all: clean build
 
 run:
-	./build/test_generator.out
-	./build/process_generator.out processes.txt -sch 3 -q 3
+	./build/process_generator.out processes3.txt -sch 1

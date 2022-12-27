@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
     }
 
 
-    avgTurnaroundTime /= pcbArraySize;
-    avgWeightedTurnaroundTime /= pcbArraySize;
+    avgTurnaroundTime /= totalProcesses;
+    avgWeightedTurnaroundTime /= totalProcesses;
     cpuUtilization /= getClk();
     cpuUtilization *= 100;
     logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
@@ -155,6 +155,7 @@ void processStopped(int signum)
         Priordequeue(readyQueue);
         PriorprintQueue(readyQueue);
 
+        deletePCB(pcbIndex);
     }
 
     isProcessRunning = false;

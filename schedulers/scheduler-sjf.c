@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
         sleep(1);
     }
 
-    avgWeightedTurnaroundTime /= pcbArraySize;
-    avgTurnaroundTime /= pcbArraySize;
+    avgWeightedTurnaroundTime /= totalProcesses;
+    avgTurnaroundTime /= totalProcesses;
     cpuUtilization /= getClk();
     cpuUtilization *= 100;
     logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
@@ -109,6 +109,7 @@ void processStopped(int signum)
                 pcbArray[pcbIndex].turnaroundTime,
                 pcbArray[pcbIndex].weightedTurnaroundTime);
     // TODO: Delete the process from the pcb array if it has no remaining time
+    deletePCB(pcbIndex);
 
     // TODO: Remove the process from the ready queue and insert it again if it has remaining time (preemptive)
 
