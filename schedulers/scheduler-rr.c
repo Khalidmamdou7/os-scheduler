@@ -24,11 +24,21 @@ void processStopped(int signum)
     int pcbIndex = getPCBIndexByActualPid(actualPid);
     // TODO: Update the process state
     pcbArray[pcbIndex].remainingTime=remainingTime;
+    pcbArray[pcbIndex].lastStoppedTime = getClk();
     pcbArray[pcbIndex].state=remainingTime==0? TERMINATED:READY;
     // TODO: Update the process statistics
 
     // TODO: Log the process termination and statistics
     if (pcbArray[pcbIndex].state == TERMINATED)
+    {
+        pcbArray[pcbIndex].finishTime = getClk();
+        pcbArray[pcbIndex].turnaroundTime = getClk() - pcbArray[pcbIndex].processData.arrivalTime;
+        pcbArray[pcbIndex].weightedTurnaroundTime = (float)pcbArray[pcbIndex].turnaroundTime / pcbArray[pcbIndex].processData.runningTime;
+
+        avgTurnaroundTime += pcbArray[pcbIndex].turnaroundTime;
+        avgWeightedTurnaroundTime += pcbArray[pcbIndex].weightedTurnaroundTime;
+        cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
+
         logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
                     pcbArray[pcbIndex].processData.arrivalTime,
                     pcbArray[pcbIndex].processData.runningTime,
@@ -36,6 +46,7 @@ void processStopped(int signum)
                     pcbArray[pcbIndex].waitingTime,
                     pcbArray[pcbIndex].turnaroundTime,
                     pcbArray[pcbIndex].weightedTurnaroundTime);
+    }
     else
         logState(getClk(), pcbArray[pcbIndex].processData.id, STOPPED,
                  pcbArray[pcbIndex].processData.arrivalTime,
@@ -82,6 +93,10 @@ int main(int argc, char *argv[])
                 if (pcbArray[pcbindex].remainingTime != pcbArray[pcbindex].processData.runningTime)
                 {
                     state = RESUMED;
+                    pcbArray[pcbindex].waitingTime += getClk() - pcbArray[pcbindex].lastStoppedTime;
+                } else {
+                    pcbArray[pcbindex].startTime = getClk();
+                    pcbArray[pcbindex].waitingTime = getClk() - pcbArray[pcbindex].processData.arrivalTime;
                 }
                 logState(getClk(), pcbArray[pcbindex].processData.id, state,
                         pcbArray[pcbindex].processData.arrivalTime,
@@ -115,6 +130,10 @@ int main(int argc, char *argv[])
         }
     }
 
+    avgTurnaroundTime /= pcbArraySize;
+    avgWeightedTurnaroundTime /= pcbArraySize;
+    cpuUtilization /= getClk();
+    cpuUtilization *= 100;
     logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
 
     printf("RR is done\n");
