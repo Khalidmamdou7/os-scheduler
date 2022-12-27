@@ -7,12 +7,12 @@
 void logState(int time, int processId, enum LogState state, int arrivalTime,
             int runTime, int remainingTime, int waitingTime)
 {
-    return logFinished(time, processId, state, arrivalTime, runTime, remainingTime, waitingTime, 0.00, 0.00);
+    return logFinished(time, processId, state, arrivalTime, runTime, remainingTime, waitingTime, 0, 0.00);
 }
  
 
 void logFinished(int time, int processId, enum LogState state, int arrivalTime,
-            int runTime, int remainingTime, int waitingTime, float turnaroundTime, float weightedTurnaroundTime) {
+            int runTime, int remainingTime, int waitingTime, int turnaroundTime, float weightedTurnaroundTime) {
                 
     FILE *file = fopen("Logs/Scheduler.log", "a");
     if (file == NULL) {
@@ -26,7 +26,7 @@ void logFinished(int time, int processId, enum LogState state, int arrivalTime,
         state == STARTED ? "started" : state == STOPPED ? "stopped" : state == FINISHED ? "finished" : "resumed",
             arrivalTime, runTime, remainingTime, waitingTime);
     if (state == FINISHED) {
-        fprintf(file, " TA %.2f WTA %.2f\n", turnaroundTime, weightedTurnaroundTime);
+        fprintf(file, " TA %d WTA %.2f\n", turnaroundTime, weightedTurnaroundTime);
     } else {
         fprintf(file, "\n");
     }
