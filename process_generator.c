@@ -134,7 +134,7 @@ void readProcessFileAndEnqueue(char* filePath, struct Queue* q)
             continue;
         
         struct ProcessData p;
-        sscanf(buff, "%d %d %d %d", &p.id, &p.arrivalTime, &p.runningTime, &p.priority);
+        sscanf(buff, "%d %d %d %d %d", &p.id, &p.arrivalTime, &p.runningTime, &p.priority ,&p.memsize);
         enqueue(q, p);
     }
     printQueue(q);

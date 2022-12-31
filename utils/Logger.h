@@ -7,3 +7,5 @@ void logFinished(int time, int processId, enum LogState state, int arrivalTime,
             int runTime, int remainingTime, int waitingTime, int turnaroundTime, float weightedTurnaroundTime);
 
 void logPerformance(float cpuUtilization, float avgWeightedTurnaroundTime, float avgTurnaroundTime);
+
+void logMemory(int time, int processId, int memsize, int memstart, int memend);

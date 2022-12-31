@@ -7,6 +7,7 @@ struct ProcessData
     int arrivalTime;
     int runningTime;
     int priority;
+    int memsize;
 };
 
 #endif

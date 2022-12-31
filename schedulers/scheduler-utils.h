@@ -19,3 +19,7 @@ int getPCBIndex(int pid);
 int getPCBIndexByActualPid(int actualPid);
 
 void finishedGeneratingProcess(int signum);
+//memory allocation
+int getSuitableSize(int process_size);
+int allocateMem(int process_size,int process_id);
+int deallocateMem(int process_size,int process_id,int starting_address);
