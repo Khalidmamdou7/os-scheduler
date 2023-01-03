@@ -170,14 +170,15 @@ void processRecieved() {
         recieveProcess();
         
         // TODO: Use the priority ready queue instead of normal queue (and with pcb)
-        enqueue(readyQueue, pcbArray[pcbArraySize].processData);
         // Allocate memory for the process
         printf("SJF is allocating memory for process %d\n", pcbArray[pcbArraySize].processData.id);
          bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
         if (isAllocated) {
             logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
+            enqueue(readyQueue, pcbArray[pcbArraySize].processData);
         } else {
             logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, FAILED, begin, end);
+            return;
         }
         pcbArraySize++;
         printQueue(readyQueue);
