@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     process1.arrivalTime=1;
     process1.runningTime=10;
     process1.priority=1;
-    process1.size=1025;
+    process1.size=511;
     int done=0;
     int begin,end;
 
@@ -117,15 +117,23 @@ int main(int argc, char *argv[])
     printf("isAllocated: %d\n",isAllocated);
     printf("begin: %d end: %d\n",begin,end);
     done=0;
-    process1.size=20;
+    process1.size=511;
     isAllocated = memory_allocation(process1,tree->root,&done,&begin,&end);
     printf("isAllocated: %d\n",isAllocated);
     printf("begin: %d end: %d\n",begin,end);
     done=0;
-    process1.size=20;
+    process1.size=2;
     isAllocated = memory_allocation(process1,tree->root,&done,&begin,&end);
+    if(isAllocated==true)
+    {
     printf("isAllocated: %d\n",isAllocated);
     printf("begin: %d end: %d\n",begin,end);
+        
+    }
+    else
+    {
+        printf("Not enough memory\n");
+    }
     done=0;
     
 
