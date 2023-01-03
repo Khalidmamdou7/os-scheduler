@@ -16,7 +16,7 @@ bool memory_allocation( struct ProcessData process,struct TreeNode* root,int* do
     }
     if((process.size) > (root->size)/2)
     {
-        if(process.size<root->size)
+        if(process.size <= root->size)
         {
 
         struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
@@ -98,48 +98,48 @@ bool memory_deallocation(struct ProcessData process, struct TreeNode* root,int* 
    return left || right;
 }
 
-int main(int argc, char *argv[])
-{
-    printf("Hello World!\n");
-    struct Tree* tree = createTree();
-    // print the tree using the tree node 
-    printTree(tree->root);
-    struct ProcessData process1;
-    process1.id=1;
-    process1.arrivalTime=1;
-    process1.runningTime=10;
-    process1.priority=1;
-    process1.size=511;
-    int done=0;
-    int begin,end;
+// int main(int argc, char *argv[])
+// {
+//     printf("Hello World!\n");
+//     struct Tree* tree = createTree();
+//     // print the tree using the tree node 
+//     printTree(tree->root);
+//     struct ProcessData process1;
+//     process1.id=1;
+//     process1.arrivalTime=1;
+//     process1.runningTime=10;
+//     process1.priority=1;
+//     process1.size=1025;
+//     int done=0;
+//     int begin,end;
 
-    bool isAllocated = memory_allocation(process1,tree->root,&done,&begin,&end);
-    printf("isAllocated: %d\n",isAllocated);
-    printf("begin: %d end: %d\n",begin,end);
-    done=0;
-    process1.size=511;
-    isAllocated = memory_allocation(process1,tree->root,&done,&begin,&end);
-    printf("isAllocated: %d\n",isAllocated);
-    printf("begin: %d end: %d\n",begin,end);
-    done=0;
-    process1.size=2;
-    isAllocated = memory_allocation(process1,tree->root,&done,&begin,&end);
-    if(isAllocated==true)
-    {
-    printf("isAllocated: %d\n",isAllocated);
-    printf("begin: %d end: %d\n",begin,end);
+//     bool isAllocated = memory_allocation(process1,tree->root,&done,&begin,&end);
+//     printf("isAllocated: %d\n",isAllocated);
+//     printf("begin: %d end: %d\n",begin,end);
+//     done=0;
+//     process1.size=511;
+//     isAllocated = memory_allocation(process1,tree->root,&done,&begin,&end);
+//     printf("isAllocated: %d\n",isAllocated);
+//     printf("begin: %d end: %d\n",begin,end);
+//     done=0;
+//     process1.size=511;
+//     isAllocated = memory_allocation(process1,tree->root,&done,&begin,&end);
+//     if(isAllocated==true)
+//     {
+//     printf("isAllocated: %d\n",isAllocated);
+//     printf("begin: %d end: %d\n",begin,end);
         
-    }
-    else
-    {
-        printf("Not enough memory\n");
-    }
-    done=0;
-    
-
-    return 0;
+//     }
+//     else
+//     {
+//         printf("Not enough memory\n");
+//     }
+//     done=0;
 
 
+//     return 0;
 
-}
+
+
+// }
     
