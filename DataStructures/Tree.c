@@ -12,6 +12,8 @@ struct Tree* createTree()
     tree->root=root;
     root->begin=0;
     root->end=1023;
+    root->flag=0;
+    root->process_id=-1;
     insert(root);
     return tree;
 }
@@ -29,6 +31,8 @@ void insert(struct TreeNode* root)
     leftNode->size = root->size/2;
     leftNode->begin = root->begin;
     leftNode->end = leftNode->begin + leftNode->size - 1;
+    leftNode->flag=0;
+    leftNode->process_id=-1;
     root->left=leftNode;
     leftNode->parent=root;
 
@@ -38,6 +42,8 @@ void insert(struct TreeNode* root)
     rightNode->begin= leftNode->end + 1;
     
     rightNode->end = root->end;
+    rightNode->flag=0;
+    rightNode->process_id=-1;
     
     root->right=rightNode;
     rightNode->parent=root;
