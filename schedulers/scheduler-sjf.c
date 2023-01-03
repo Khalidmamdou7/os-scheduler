@@ -4,6 +4,7 @@
 #include "scheduler-utils.h"
 #include "../DataStructures/PriorityQueue.h"
 #include "../utils/Logger.h"
+#include "../DataStructures/Tree.h"
 
 struct PriorQueue* readyQueue;
 float cpuUtilization;
@@ -26,6 +27,8 @@ int main(int argc, char *argv[])
     printf("SJF connected to the message queue with id %d\n", msgQueueId);
 
     readyQueue = createPriorQueue();
+    tree = createTree();
+    printTree(tree->root);
     attachSignalHandlers();
 
     initClk();
@@ -75,6 +78,11 @@ void processRecieved(int signum) {
     
     // TODO: Use the priority ready queue instead of normal queue (and with pcb)
     Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].remainingTime);
+    // Allocate memory for the process
+    printf("SJF is allocating memory for process %d\n", pcbArray[pcbArraySize].processData.id);
+    bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
+    logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
+
     pcbArraySize++;
     PriorprintQueue(readyQueue);
 
@@ -101,6 +109,8 @@ void processStopped(int signum)
     cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
 
     // TODO: Log the process termination and statistics
+    bool isDeallocated = memDeallocate(pcbArray[pcbIndex].processData, &begin, &end);
+    logMemory(getClk(), pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.size, DEALLOCATED, begin, end);
     logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
                 pcbArray[pcbIndex].processData.arrivalTime,
                 pcbArray[pcbIndex].processData.runningTime,
