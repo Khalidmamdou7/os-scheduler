@@ -1,6 +1,8 @@
 #include "scheduler-utils.h"
 #include "../ipc/MsgQueue.h"
 #include "../ipc/MsgStruct.h"
+#include "../memory/memory.h"
+
 
 
 
@@ -10,6 +12,9 @@ int pcbArraySize = 0;
 bool isFinishedGenerating;
 bool isProcessRunning = false;
 int msgQueueId;
+
+struct Tree* tree;
+int begin, end;
 
 
 void recieveProcess()
@@ -86,4 +91,18 @@ int getPCBIndexByActualPid(int actualPid)
 void finishedGeneratingProcess(int signum)
 {
     isFinishedGenerating = true;
+}
+
+bool memAllocate(struct ProcessData process, int* begin, int* end) {
+    int done = 0;
+    printf("i am in scheduler utils in memAllocate\n");
+    printf("tree->root = %d", tree->root->size);
+    bool isAllocated = memory_allocation(process, tree->root, &done, begin, end);
+    return isAllocated;
+}
+
+bool memDeallocate(struct ProcessData process, int* begin, int* end) {
+    int done = 0;
+    // bool isDeallocated = memory_deallocation(process, tree->root, &done, begin, end);
+    // return isDeallocated;
 }

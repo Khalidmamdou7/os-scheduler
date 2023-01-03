@@ -20,3 +20,8 @@ enum LogState {
     STOPPED = 3,
     FINISHED = 4
 };
+
+enum LogMemState {
+    ALLOCATED = 1,
+    DEALLOCATED = 2
+};
