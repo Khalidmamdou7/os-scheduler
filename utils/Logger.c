@@ -63,7 +63,7 @@ void logMemory(int time, int processId, int size, enum LogMemState state, int be
     printf("Logging Memory...\n");
 
     fprintf(file, "At time %d process %d %s %d %d-%d\n", time, processId, 
-        state == ALLOCATED ? "allocated" : "deallocated", size, begin, end);
+        state == ALLOCATED ? "allocated" : state == DEALLOCATED ? "deallocated" : "failed", size, begin, end);
 
     fclose(file);
 }
