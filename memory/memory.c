@@ -14,12 +14,44 @@ bool memory_allocation( struct ProcessData process,struct TreeNode* root,int* do
     {
         return false;
     }
-    if((process.size) > (root->size))
+    if((process.size) > (root->size)/2)
     {
-        root->parent->flag=1;
-        root->parent->process_id=process.id;
+
+        struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+        temp=root;
+        while(temp!=NULL)
+        {
+            if(temp->flag==1)
+            {
+                return false;
+            }
+            temp=temp->left;
+        }
+        temp=root;
+        while(temp!=NULL)
+        {
+            if(temp->flag==1)
+            {
+                return false;
+            }
+            temp=temp->right;
+            
+        }
+
+        root->flag=1;
+        root->process_id=process.id;
         *done=1;
+        //set begin and end
+
         return true;
+
+
+
+
+
+
+
+
     }
     bool left,right;
     left=memory_allocation(process,root->left,done);
