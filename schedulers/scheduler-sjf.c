@@ -10,6 +10,7 @@ struct PriorQueue* readyQueue;
 float cpuUtilization;
 float avgWeightedTurnaroundTime;
 float avgTurnaroundTime;
+float avgWaitingTime;
 
 void attachSignalHandlers();
 void processStopped(int signum);
@@ -57,9 +58,10 @@ int main(int argc, char *argv[])
 
     avgWeightedTurnaroundTime /= pcbArraySize;
     avgTurnaroundTime /= pcbArraySize;
+    avgWaitingTime /= pcbArraySize;
     cpuUtilization /= getClk();
     cpuUtilization *= 100;
-    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
+    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime, avgWaitingTime);
     printf("SJF is done\n");
 }
 
@@ -74,17 +76,20 @@ void attachSignalHandlers()
 }
 
 void processRecieved(int signum) {
-    recieveProcess();
-    
-    // TODO: Use the priority ready queue instead of normal queue (and with pcb)
-    Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].remainingTime);
-    // Allocate memory for the process
-    printf("SJF is allocating memory for process %d\n", pcbArray[pcbArraySize].processData.id);
-    bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
-    logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
+    while(!isMsgQueueEmpty(msgQueueId))
+    {
 
-    pcbArraySize++;
-    PriorprintQueue(readyQueue);
+        recieveProcess();
+        
+        // TODO: Use the priority ready queue instead of normal queue (and with pcb)
+        Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].remainingTime);
+        // Allocate memory for the process
+        printf("SJF is allocating memory for process %d\n", pcbArray[pcbArraySize].processData.id);
+        bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
+        logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
+        pcbArraySize++;
+        PriorprintQueue(readyQueue);
+    }
 
 }
 
@@ -99,6 +104,7 @@ void processStopped(int signum)
     pcbArray[pcbIndex].remainingTime = 0;
     pcbArray[pcbIndex].actualPid = -1;
     pcbArray[pcbIndex].finishTime = getClk();
+    printf("process running time %d\n", pcbArray[pcbIndex].processData.runningTime);
     pcbArray[pcbIndex].waitingTime = pcbArray[pcbIndex].finishTime - pcbArray[pcbIndex].startTime - pcbArray[pcbIndex].processData.runningTime;
     pcbArray[pcbIndex].turnaroundTime = pcbArray[pcbIndex].finishTime - pcbArray[pcbIndex].processData.arrivalTime;
     pcbArray[pcbIndex].weightedTurnaroundTime = (float)pcbArray[pcbIndex].turnaroundTime / pcbArray[pcbIndex].processData.runningTime;
@@ -106,6 +112,7 @@ void processStopped(int signum)
     // TODO: Update the process statistics
     avgTurnaroundTime += pcbArray[pcbIndex].turnaroundTime;
     avgWeightedTurnaroundTime += pcbArray[pcbIndex].weightedTurnaroundTime;
+    avgWaitingTime += pcbArray[pcbIndex].waitingTime;
     cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
 
     // TODO: Log the process termination and statistics

@@ -11,6 +11,7 @@ int runningProcessPcbIndex = -1;
 float cpuUtilization = 0;
 float avgWeightedTurnaroundTime = 0;
 float avgTurnaroundTime = 0;
+float avgWaitingTime = 0;
 
 void attachSignalHandlers();
 void processStopped(int signum);
@@ -60,7 +61,6 @@ int main(int argc, char *argv[])
                         pcbArray[runningProcessPcbIndex].processData.runningTime,
                         pcbArray[runningProcessPcbIndex].remainingTime,
                         pcbArray[runningProcessPcbIndex].waitingTime);
-                Priordequeue(readyQueue);
             }
         }
         printf("HPF is sleeping\n");
@@ -70,9 +70,10 @@ int main(int argc, char *argv[])
 
     avgTurnaroundTime /= pcbArraySize;
     avgWeightedTurnaroundTime /= pcbArraySize;
+    avgWaitingTime /= pcbArraySize;
     cpuUtilization /= getClk();
     cpuUtilization *= 100;
-    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime);
+    logPerformance(cpuUtilization, avgWeightedTurnaroundTime, avgTurnaroundTime, avgWaitingTime);
 
     printf("HPF is done\n");
 
@@ -126,7 +127,6 @@ void processStopped(int signum)
         pcbArray[pcbIndex].remainingTime = remainingTime;
         pcbArray[pcbIndex].state = READY;
         pcbArray[pcbIndex].lastStoppedTime = getClk();
-        Priorenqueue(readyQueue, pcbArray[pcbIndex].processData, pcbArray[pcbIndex].processData.priority);
 
         logState(getClk(), pcbArray[pcbIndex].processData.id, STOPPED,
                 pcbArray[pcbIndex].processData.arrivalTime,
@@ -145,6 +145,7 @@ void processStopped(int signum)
 
         avgTurnaroundTime += pcbArray[pcbIndex].turnaroundTime;
         avgWeightedTurnaroundTime += pcbArray[pcbIndex].weightedTurnaroundTime;
+        avgWaitingTime += pcbArray[pcbIndex].waitingTime;
         cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
         logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
                 pcbArray[pcbIndex].processData.arrivalTime,
@@ -153,6 +154,10 @@ void processStopped(int signum)
                 pcbArray[pcbIndex].waitingTime,
                 pcbArray[pcbIndex].turnaroundTime,
                 pcbArray[pcbIndex].weightedTurnaroundTime);
+        
+        Priordequeue(readyQueue);
+        PriorprintQueue(readyQueue);
+
     }
 
     isProcessRunning = false;

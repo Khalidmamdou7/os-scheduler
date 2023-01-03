@@ -31,6 +31,7 @@ void recieveProcess()
     }
 
     pcbArray[pcbArraySize] = initializePCB(msg.data);
+    
 
 }
 

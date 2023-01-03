@@ -35,7 +35,7 @@ void logFinished(int time, int processId, enum LogState state, int arrivalTime,
 
 }
 
-void logPerformance(float cpuUtilization, float avgWeightedTurnaroundTime, float avgTurnaroundTime)
+void logPerformance(float cpuUtilization, float avgWeightedTurnaroundTime, float avgTurnaroundTime, float avgWaitingTime)
 {
     FILE *file = fopen("Logs/Scheduler.perf", "w");
     if (file == NULL) {
@@ -47,6 +47,7 @@ void logPerformance(float cpuUtilization, float avgWeightedTurnaroundTime, float
     fprintf(file, "CPU utilization = %.2f %\n", cpuUtilization);
     fprintf(file, "Avg WTA = %.2f\n", avgWeightedTurnaroundTime);
     fprintf(file, "Avg TA = %.2f\n", avgTurnaroundTime);
+    fprintf(file, "Avg WT = %.2f\n", avgWaitingTime);
 
     fclose(file);
 }
