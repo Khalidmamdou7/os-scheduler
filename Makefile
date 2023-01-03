@@ -11,6 +11,7 @@ build:
 	gcc ./schedulers/scheduler-hpf.c headers.c ./ipc/MsgQueue.c ./DataStructures/PriorityQueue.c ./ProcessStructs/PCB.c ./schedulers/scheduler-utils.c ./utils/Logger.c -o ./build/scheduler-hpf.out
 	gcc ./schedulers/scheduler-rr.c headers.c ./ipc/MsgQueue.c ./DataStructures/Queue.c ./ProcessStructs/PCB.c ./schedulers/scheduler-utils.c ./utils/Logger.c -o ./build/scheduler-rr.out
 	gcc ./schedulers/scheduler-mlf.c headers.c ./ipc/MsgQueue.c ./DataStructures/Queue.c ./ProcessStructs/PCB.c ./schedulers/scheduler-utils.c -o ./build/scheduler-mlf.out
+	gcc ./memory/memory.c ./DataStructures/Tree.c -o ./build/memory.out
 
 clean:
 	rm -f *.out  processes.txt build/* Logs/* *.log *.perf
@@ -18,4 +19,5 @@ clean:
 all: clean build
 
 run:
-	./build/process_generator.out processes.txt -sch 1
+	./build/test_generator.out
+	./build/memory.out

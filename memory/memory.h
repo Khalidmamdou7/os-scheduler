@@ -3,5 +3,5 @@
 
 
 
-bool memory_allocation(struct ProcessData process, struct TreeNode* t,int* done);
-bool memory_deallocation(struct ProcessData process, struct TreeNode* t,int* done);
+bool memory_allocation(struct ProcessData process, struct TreeNode* t,int* done, int* begin, int* end);
+bool memory_deallocation(struct ProcessData process, struct TreeNode* t,int* done, int* begin, int* end);
