@@ -4,6 +4,7 @@
 #include "scheduler-utils.h"
 #include "../DataStructures/PriorityQueue.h"
 #include "../utils/Logger.h"
+#include "../DataStructures/Tree.h"
 
 struct PriorQueue* readyQueue;
 int runningProcessPcbIndex = -1;
@@ -31,6 +32,8 @@ int main(int argc, char *argv[])
 
     // TODO: Implement HPF algorithm using the helper functions in scheduler-utils.h
     readyQueue = createPriorQueue();
+    tree = createTree();
+    printTree(tree->root);
     attachSignalHandlers();
     initClk();
 
@@ -98,7 +101,7 @@ void processRecieved(int signum) {
         // TODO: Use the priority ready queue instead of normal queue (and with pcb)
         Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].processData.priority);
         printf("SJF is allocating memory for process %d\n", pcbArray[pcbArraySize].processData.id);
-        bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
+         bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
         if (isAllocated) {
             logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
         } else {

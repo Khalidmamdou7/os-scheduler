@@ -4,6 +4,8 @@
 #include "scheduler-utils.h"
 #include "../DataStructures/Queue.h"
 #include "../utils/Logger.h"
+#include "../DataStructures/Tree.h"
+
 
 struct Queue* readyQueue;
 float cpuUtilization = 0;
@@ -82,6 +84,8 @@ int main(int argc, char *argv[])
     initClk();
 
     readyQueue = createQueue();
+    tree = createTree();
+    printTree(tree->root);
     attachSignalHandlers();
     int Q=atoi(argv[1]);
 
@@ -169,7 +173,7 @@ void processRecieved() {
         enqueue(readyQueue, pcbArray[pcbArraySize].processData);
         // Allocate memory for the process
         printf("SJF is allocating memory for process %d\n", pcbArray[pcbArraySize].processData.id);
-        bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
+         bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
         if (isAllocated) {
             logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
         } else {

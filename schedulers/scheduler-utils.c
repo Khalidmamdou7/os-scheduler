@@ -103,6 +103,6 @@ bool memAllocate(struct ProcessData process, int* begin, int* end) {
 
 bool memDeallocate(struct ProcessData process, int* begin, int* end) {
     int done = 0;
-    // bool isDeallocated = memory_deallocation(process, tree->root, &done, begin, end);
-    // return isDeallocated;
+     bool isDeallocated = memory_deallocation(process, tree->root, &done, begin, end);
+     return isDeallocated;
 }
