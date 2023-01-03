@@ -16,6 +16,8 @@ bool memory_allocation( struct ProcessData process,struct TreeNode* root,int* do
     }
     if((process.size) > (root->size)/2)
     {
+        if(process.size<root->size)
+        {
 
         struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
         temp=root;
@@ -44,9 +46,12 @@ bool memory_allocation( struct ProcessData process,struct TreeNode* root,int* do
         //set begin and end
         *begin = root->begin;
         *end = root->end;
-
-
         return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     bool left,right;
     left=memory_allocation(process,root->left,done,begin,end);
@@ -104,7 +109,7 @@ int main(int argc, char *argv[])
     process1.arrivalTime=1;
     process1.runningTime=10;
     process1.priority=1;
-    process1.size=20;
+    process1.size=1025;
     int done=0;
     int begin,end;
 
