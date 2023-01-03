@@ -72,7 +72,13 @@ void attachSignalHandlers()
 
 void processRecieved(int signum) {
     recieveProcess();
-    
+        //allocate memory
+    int start_address_p = allocateMem(pcbArray[pcbArraySize].processData.memSize, pcbArray[pcbArraySize].processData.id);
+    if(start_address_p==-1)//failed to allocate memory
+        return;
+
+    pcbArray[pcbArraySize].processData.memStart = start_address_p;
+    logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.memStart, pcbArray[pcbArraySize].processData.memSize,1);//1 allocated
     // TODO: Use the priority ready queue instead of normal queue (and with pcb)
     Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].remainingTime);
     pcbArraySize++;
@@ -83,6 +89,11 @@ void processRecieved(int signum) {
 void processStopped(int signum)
 {
     printf("A process has stopped\n");
+
+    //remove process from memory
+    deallocateMem(pcbArray[pcbIndex].processData.memSize, pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.memStart);
+    logMemory(getClk(), pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.memStart, pcbArray[pcbIndex].processData.memSize,0);//0 freed
+
     int remainingTime;
     int actualPid = wait(&remainingTime);
     int pcbIndex = getPCBIndexByActualPid(actualPid);

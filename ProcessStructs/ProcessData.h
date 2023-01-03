@@ -8,6 +8,7 @@ struct ProcessData
     int runningTime;
     int priority;
     int memsize;
+    int memstart=-1;
 };
 
 #endif

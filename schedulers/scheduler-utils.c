@@ -90,6 +90,9 @@ void finishedGeneratingProcess(int signum)
 //get suitable size for memory allocation using buddy system
 int getSuitableSize(int process_size)
 {
+    if(process_size>1024)//----------------check if it is out of memory check meeeee
+        return -1;
+
     int size = 1;
     while (size < process_size)
     {
@@ -101,7 +104,7 @@ int getSuitableSize(int process_size)
 int allocateMem(int process_size,int process_id)
 {
     int suitable_size = getSuitableSize(process_size);
-    bool allocated = false;
+    bool allocated_to_other_p = false;
     //assumption : first fit memory allocated
     for (int i = 0; i < 1024 ; i += suitable_size)//1024 is the size of the memory
     {
@@ -109,18 +112,20 @@ int allocateMem(int process_size,int process_id)
     //i= 0,32,64,96... if process_size = 32
     //we need to check if the memory is allocated or not
 
-        allocated = false;
+        allocated_to_other_p = false;
 
         for (int j = i; j < i+suitable_size; j++)
-        {
-            if (memory[j] != 0)//allocated
+        {   if(j>=1024)//----------------check if it is out of memory check meeeee
+                break;
+            if (memory[j] != 0)//mem allocated to other process
             {
-                allocated = true;
+                allocated_to_other_p = true;
                 break;
             }
         }
-        if (!allocated)
+        if (!allocated_to_other_p)
         {
+            printf("memory is allocated from %d to %d \n", i, i+suitable_size);
             for (int k = i; k < i+suitable_size; k++)
             {
                 memory[k] = process_id;
@@ -141,5 +146,6 @@ int deallocateMem(int process_size,int process_id,int starting_address)
     {
         memory[i] = 0;
     }
+    printf("memory is deallocated from %d to %d \n",starting_address,starting_address+suitable_size);
     return 0;
 }

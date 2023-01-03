@@ -51,8 +51,9 @@ void logPerformance(float cpuUtilization, float avgWeightedTurnaroundTime, float
     fclose(file);
 }
 
-void logMemory(int time, int processId, int memsize, int memstart, int memend)
+void logMemory(int time, int processId, int memsize, int memstart, int memend,int allocated_or_freed)
 {
+    //allocated_or_freed = 1 for allocated and 0 for freed
     FILE *file = fopen("Logs/Memory.log", "a");
     if (file == NULL) {
         printf("Error opening file!\n");
@@ -60,8 +61,11 @@ void logMemory(int time, int processId, int memsize, int memstart, int memend)
     }
 
     printf("Logging Memory...\n");
-
+if(allocated_or_freed==1)
     fprintf(file, "At time %d allocated %d bytes for process %d from %d to %d", time, memsize , processId, memstart, memend);
+else
+    fprintf(file, "At time %d freed %d bytes from process %d from %d to %d", time, memsize , processId, memstart, memend);    
+
     fprintf(file, "\n");
     fclose(file);
 }
