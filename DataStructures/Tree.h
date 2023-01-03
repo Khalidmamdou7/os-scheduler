@@ -4,7 +4,7 @@ struct TreeNode
 {
     int process_id;
     struct TreeNode* left;
-    struct TreeeNode* right;
+    struct TreeNode* right;
     struct TreeNode* parent;
     int flag;    
     int size;
@@ -18,4 +18,6 @@ struct Tree
 struct Tree* createTree();
 
 void insert(struct TreeNode* root);
+
+void printTree(struct TreeNode* root);
 
