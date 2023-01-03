@@ -44,7 +44,7 @@ void logPerformance(float cpuUtilization, float avgWeightedTurnaroundTime, float
     }
 
     printf("Logging Performance...\n");
-    fprintf(file, "CPU utilization = %.2f %\n", cpuUtilization);
+    fprintf(file, "CPU utilization = %.2f \n", cpuUtilization);
     fprintf(file, "Avg WTA = %.2f\n", avgWeightedTurnaroundTime);
     fprintf(file, "Avg TA = %.2f\n", avgTurnaroundTime);
     fprintf(file, "Avg WT = %.2f\n", avgWaitingTime);
