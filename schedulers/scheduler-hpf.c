@@ -90,22 +90,33 @@ void attachSignalHandlers()
 }
 
 void processRecieved(int signum) {
-    recieveProcess();
-    
-    // TODO: Use the priority ready queue instead of normal queue (and with pcb)
-    Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].processData.priority);
-    if (peek(readyQueue)->pData.id == pcbArray[pcbArraySize].processData.id)
+    while(!isMsgQueueEmpty(msgQueueId))
     {
-        if (isProcessRunning)
-        {
-            printf("Scheduler-hpf is preempting the current running process whic has actual pid %d and pcb index %d\n", 
-            pcbArray[runningProcessPcbIndex].actualPid, runningProcessPcbIndex);
-            kill(pcbArray[runningProcessPcbIndex].actualPid, SIGUSR1);
-        }
-    }
-    pcbArraySize++;
-    PriorprintQueue(readyQueue);
 
+        recieveProcess();
+        
+        // TODO: Use the priority ready queue instead of normal queue (and with pcb)
+        Priorenqueue(readyQueue, pcbArray[pcbArraySize].processData, pcbArray[pcbArraySize].processData.priority);
+        printf("SJF is allocating memory for process %d\n", pcbArray[pcbArraySize].processData.id);
+        bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
+        if (isAllocated) {
+            logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
+        } else {
+            logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, FAILED, begin, end);
+        }
+
+        if (peek(readyQueue)->pData.id == pcbArray[pcbArraySize].processData.id)
+        {
+            if (isProcessRunning)
+            {
+                printf("Scheduler-hpf is preempting the current running process whic has actual pid %d and pcb index %d\n", 
+                pcbArray[runningProcessPcbIndex].actualPid, runningProcessPcbIndex);
+                kill(pcbArray[runningProcessPcbIndex].actualPid, SIGUSR1);
+            }
+        }
+        pcbArraySize++;
+        PriorprintQueue(readyQueue);
+    }
 }
 
 void processStopped(int signum)
@@ -147,6 +158,13 @@ void processStopped(int signum)
         avgWeightedTurnaroundTime += pcbArray[pcbIndex].weightedTurnaroundTime;
         avgWaitingTime += pcbArray[pcbIndex].waitingTime;
         cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
+
+        bool isDeallocated = memDeallocate(pcbArray[pcbIndex].processData, &begin, &end);
+        if (isDeallocated)
+            logMemory(getClk(), pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.size, DEALLOCATED, begin, end);
+        else
+            logMemory(getClk(), pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.size, FAILED, begin, end);
+
         logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
                 pcbArray[pcbIndex].processData.arrivalTime,
                 pcbArray[pcbIndex].processData.runningTime,

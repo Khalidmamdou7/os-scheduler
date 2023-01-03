@@ -23,5 +23,6 @@ enum LogState {
 
 enum LogMemState {
     ALLOCATED = 1,
-    DEALLOCATED = 2
+    DEALLOCATED = 2,
+    FAILED = 3
 };

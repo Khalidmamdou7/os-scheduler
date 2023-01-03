@@ -41,6 +41,13 @@ void processStopped(int signum)
         avgWaitingTime += pcbArray[pcbIndex].waitingTime;
         cpuUtilization += pcbArray[pcbIndex].processData.runningTime;
 
+        bool isDeallocated = memDeallocate(pcbArray[pcbIndex].processData, &begin, &end);
+        if (isDeallocated)
+            logMemory(getClk(), pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.size, DEALLOCATED, begin, end);
+        else
+            logMemory(getClk(), pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.size, FAILED, begin, end);
+
+
         logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
                     pcbArray[pcbIndex].processData.arrivalTime,
                     pcbArray[pcbIndex].processData.runningTime,
@@ -153,12 +160,26 @@ void attachSignalHandlers()
 
 }
 void processRecieved() {
-    recieveProcess();
-    
-    // TODO: Use the priority ready queue instead of normal queue (and with pcb)
-    enqueue(readyQueue, pcbArray[pcbArraySize].processData);
-    pcbArraySize++;
-    printQueue(readyQueue);
+
+    while(!isMsgQueueEmpty(msgQueueId))
+    {
+        recieveProcess();
+        
+        // TODO: Use the priority ready queue instead of normal queue (and with pcb)
+        enqueue(readyQueue, pcbArray[pcbArraySize].processData);
+        // Allocate memory for the process
+        printf("SJF is allocating memory for process %d\n", pcbArray[pcbArraySize].processData.id);
+        bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
+        if (isAllocated) {
+            logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
+        } else {
+            logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, FAILED, begin, end);
+        }
+        pcbArraySize++;
+        printQueue(readyQueue);
+
+    }
+
 
 }
 void quantumFinished()

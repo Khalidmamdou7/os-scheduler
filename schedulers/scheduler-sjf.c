@@ -86,7 +86,11 @@ void processRecieved(int signum) {
         // Allocate memory for the process
         printf("SJF is allocating memory for process %d\n", pcbArray[pcbArraySize].processData.id);
         bool isAllocated = memAllocate(pcbArray[pcbArraySize].processData, &begin, &end);
-        logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
+        if (isAllocated) {
+            logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, ALLOCATED, begin, end);
+        } else {
+            logMemory(getClk(), pcbArray[pcbArraySize].processData.id, pcbArray[pcbArraySize].processData.size, FAILED, begin, end);
+        }
         pcbArraySize++;
         PriorprintQueue(readyQueue);
     }
@@ -117,7 +121,10 @@ void processStopped(int signum)
 
     // TODO: Log the process termination and statistics
     bool isDeallocated = memDeallocate(pcbArray[pcbIndex].processData, &begin, &end);
-    logMemory(getClk(), pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.size, DEALLOCATED, begin, end);
+    if (isDeallocated)
+        logMemory(getClk(), pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.size, DEALLOCATED, begin, end);
+    else
+        logMemory(getClk(), pcbArray[pcbIndex].processData.id, pcbArray[pcbIndex].processData.size, FAILED, begin, end);
     logFinished(getClk(), pcbArray[pcbIndex].processData.id, FINISHED,
                 pcbArray[pcbIndex].processData.arrivalTime,
                 pcbArray[pcbIndex].processData.runningTime,
